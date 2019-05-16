@@ -5,12 +5,11 @@
 
 #pragma once
 
-#include <iostream>
+#include <sstream>
 #include <memory>
 
 #include <cxxreact/JSBigString.h>
 #include <cxxreact/JSModulesUnbundle.h>
-#include <cxxreact/JSIndexedRAMBundleSource.h>
 
 #ifndef RN_EXPORT
 #define RN_EXPORT __attribute__((visibility("default")))
@@ -19,13 +18,11 @@
 namespace facebook {
 namespace react {
 
-class RN_EXPORT JSIndexedRAMBundle : public JSModulesUnbundle {
+class RN_EXPORT JSAssetsIndexedRAMBundle : public JSModulesUnbundle {
 public:
-  static std::function<std::unique_ptr<JSModulesUnbundle>(std::string)> buildFactory();
 
   // Throws std::runtime_error on failure.
-  JSIndexedRAMBundle(const char *sourceURL);
-  JSIndexedRAMBundle(const JSBigString* script);
+  JSAssetsIndexedRAMBundle(std::unique_ptr<const JSBigString> script);
 
   // Throws std::runtime_error on failure.
   std::unique_ptr<const JSBigString> getStartupCode();
@@ -52,15 +49,15 @@ private:
       return numEntries * sizeof(ModuleData);
     }
   };
-  void init() const;
+
   std::string getModuleCode(const uint32_t id) const;
   void readBundle(char *buffer, const std::streamsize bytes) const;
   void readBundle(
     char *buffer, const
     std::streamsize bytes,
-    const std::iostream::pos_type position) const;
+    const std::stringstream::pos_type position) const;
 
-  mutable std::unique_ptr<JSIndexedRAMBundleSource> m_bundle;
+  mutable std::stringstream m_bundle;
   ModuleTable m_table;
   size_t m_baseOffset;
   std::unique_ptr<JSBigBufferString> m_startupCode;

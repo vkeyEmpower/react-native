@@ -16,6 +16,7 @@
 #include "SystraceSection.h"
 
 #include <cxxreact/JSIndexedRAMBundle.h>
+#include <cxxreact/JSAssetsIndexedRAMBundle.h>
 #include <folly/Memory.h>
 #include <folly/MoveWrapper.h>
 #include <folly/json.h>
@@ -106,6 +107,23 @@ bool Instance::isIndexedRAMBundle(const char *sourcePath) {
   }
 
   return parseTypeFromHeader(header) == ScriptTag::RAMBundle;
+}
+bool Instance::isIndexedRAMBundle(std::unique_ptr<const JSBigString>* script) {
+  BundleHeader header;
+  strncpy(reinterpret_cast<char *>(&header), script->get()->c_str(), sizeof(header));
+
+   return parseTypeFromHeader(header) == ScriptTag::RAMBundle;
+}
+
+void Instance::loadRAMBundlefromString(std::unique_ptr<const JSBigString> script, const std::string& sourceURL) {
+  auto bundle = folly::make_unique<JSAssetsIndexedRAMBundle>(std::move(script));
+  auto startupScript = bundle->getStartupCode();
+  auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
+    loadRAMBundle(
+      std::move(registry),
+      std::move(startupScript),
+      sourceURL,
+      true);
 }
 
 void Instance::loadRAMBundleFromFile(const std::string& sourcePath,

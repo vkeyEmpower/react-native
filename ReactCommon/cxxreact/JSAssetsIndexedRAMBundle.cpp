@@ -3,34 +3,19 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
-#include "JSIndexedRAMBundle.h"
+#include "JSAssetsIndexedRAMBundle.h"
 
 #include <folly/Memory.h>
 
 namespace facebook {
 namespace react {
 
-std::function<std::unique_ptr<JSModulesUnbundle>(std::string)> JSIndexedRAMBundle::buildFactory() {
-  return [](const std::string& bundlePath){
-    return folly::make_unique<JSIndexedRAMBundle>(bundlePath.c_str());
-  };
-}
-
-JSIndexedRAMBundle::JSIndexedRAMBundle(const char *sourcePath):
-  m_bundle(folly::make_unique<JSIndexedRAMBundleFileSource>(std::move(JSIndexedRAMBundleFileSource(sourcePath)))) {
-    init();
-}
-
-JSIndexedRAMBundle::JSIndexedRAMBundle(const JSBigString* script):
-  m_bundle(std::move(JSIndexedRAMBundleStringSource(script))) {
-    init();
-}
-
-void JSIndexedRAMBundle::init() {
-  if (!(m_bundle.get()*)) {
+JSAssetsIndexedRAMBundle::JSAssetsIndexedRAMBundle(std::unique_ptr<const JSBigString> script) {
+  m_bundle.write(script.get()->c_str(), script.get()->size());
+  if (!m_bundle.good()) {
     throw std::ios_base::failure(
       folly::to<std::string>("Bundle ",
-                             "cannot be opened: ", m_bundle->rdstate()));
+                             "cannot be opened: ", m_bundle.rdstate()));
   }
 
   // read in magic header, number of entries, and length of the startup section
@@ -57,19 +42,19 @@ void JSIndexedRAMBundle::init() {
   readBundle(m_startupCode->data(), startupCodeSize - 1);
 }
 
-JSIndexedRAMBundle::Module JSIndexedRAMBundle::getModule(uint32_t moduleId) const {
+JSAssetsIndexedRAMBundle::Module JSAssetsIndexedRAMBundle::getModule(uint32_t moduleId) const {
   Module ret;
   ret.name = folly::to<std::string>(moduleId, ".js");
   ret.code = getModuleCode(moduleId);
   return ret;
 }
 
-std::unique_ptr<const JSBigString> JSIndexedRAMBundle::getStartupCode() {
+std::unique_ptr<const JSBigString> JSAssetsIndexedRAMBundle::getStartupCode() {
   CHECK(m_startupCode) << "startup code for a RAM Bundle can only be retrieved once";
   return std::move(m_startupCode);
 }
 
-std::string JSIndexedRAMBundle::getModuleCode(const uint32_t id) const {
+std::string JSAssetsIndexedRAMBundle::getModuleCode(const uint32_t id) const {
   const auto moduleData = id < m_table.numEntries ? &m_table.data[id] : nullptr;
 
   // entries without associated code have offset = 0 and length = 0
@@ -84,24 +69,24 @@ std::string JSIndexedRAMBundle::getModuleCode(const uint32_t id) const {
   return ret;
 }
 
-void JSIndexedRAMBundle::readBundle(char *buffer, const std::streamsize bytes) const {
-  if (!m_bundle->read(buffer, bytes)) {
-    if (m_bundle->rdstate() & std::ios::eofbit) {
+void JSAssetsIndexedRAMBundle::readBundle(char *buffer, const std::streamsize bytes) const {
+  if (!m_bundle.read(buffer, bytes)) {
+    if (m_bundle.rdstate() & std::ios::eofbit) {
       throw std::ios_base::failure("Unexpected end of RAM Bundle file");
     }
     throw std::ios_base::failure(
-      folly::to<std::string>("Error reading RAM Bundle: ", m_bundle->rdstate()));
+      folly::to<std::string>("Error reading RAM Bundle: ", m_bundle.rdstate()));
   }
 }
 
-void JSIndexedRAMBundle::readBundle(
+void JSAssetsIndexedRAMBundle::readBundle(
     char *buffer,
     const std::streamsize bytes,
-    const std::ifstream::pos_type position) const {
+    const std::istringstream::pos_type position) const {
 
-  if (!m_bundle->seekg(position)) {
+  if (!m_bundle.seekg(position)) {
     throw std::ios_base::failure(
-      folly::to<std::string>("Error reading RAM Bundle: ", m_bundle->rdstate()));
+      folly::to<std::string>("Error reading RAM Bundle: ", m_bundle.rdstate()));
   }
   readBundle(buffer, bytes);
 }

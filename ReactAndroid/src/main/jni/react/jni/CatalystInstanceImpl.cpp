@@ -188,18 +188,23 @@ void CatalystInstanceImpl::jniLoadScriptFromAssets(
 
   auto manager = extractAssetManager(assetManager);
   auto script = loadScriptFromAssets(manager, sourceURL);
-  if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
-    auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
-    auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
-    instance_->loadRAMBundle(
-      std::move(registry),
-      std::move(script),
-      sourceURL,
-      loadSynchronously);
-    return;
-  } else {
-    instance_->loadScriptFromString(std::move(script), sourceURL, loadSynchronously);
-  }
+  // if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
+  //   auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
+  //   auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
+  //   instance_->loadRAMBundle(
+  //     std::move(registry),
+  //     std::move(script),
+  //     sourceURL,
+  //     loadSynchronously);
+  //   return;
+  // } else if (Instance::isIndexedRAMBundle(&script)) {
+    std::string ccc(script.get()->c_str());
+    size_t tt = script.get()->size();
+    if(!tt){}
+    instance_->loadRAMBundlefromString(std::move(script), sourceURL);
+  // } else {
+  //   instance_->loadScriptFromString(std::move(script), sourceURL, loadSynchronously);
+  // }
 }
 
 void CatalystInstanceImpl::jniLoadScriptFromFile(const std::string& fileName,
