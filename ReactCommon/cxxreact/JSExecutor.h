@@ -12,7 +12,7 @@
 #include <folly/dynamic.h>
 #include <folly/Optional.h>
 #include "JSModulesUnbundle.h"
-#include "Bundle.h"
+#include "BundleRegistry.h"
 
 #ifndef RN_EXPORT
 #define RN_EXPORT __attribute__((visibility("default")))
@@ -57,10 +57,10 @@ public:
   /**
    * Setup JS environemnt with global variables for JS-Native communication.
    * Should be called only once per JSContext.
+   * Sets: nativeRequire (if bundle is RAM), bundleRegistryLoad
    */
-  // TODO: use bundeRegistry, instead of lambdas here
-  virtual void setupEnvironment(std::function<std::weak_ptr<Bundle>(std::string, bool)> getBundle,
-                                folly::Optional<std::function<JSModulesUnbundle::Module(uint32_t, uint32_t)>> getModule) = 0;
+  virtual void setupEnvironment(std::function<void(std::string, bool)> loadBundle,
+                                folly::Optional<std::function<JSModulesUnbundle::Module(uint32_t)>> getModule) = 0;
 
   /**
    * Execute an application script bundle in the JS context.

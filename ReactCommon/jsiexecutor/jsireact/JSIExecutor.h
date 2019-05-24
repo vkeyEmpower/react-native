@@ -79,8 +79,8 @@ class JSIExecutor : public JSExecutor {
       Logger logger,
       const JSIScopedTimeoutInvoker& timeoutInvoker,
       RuntimeInstaller runtimeInstaller);
-  void setupEnvironment(std::function<std::weak_ptr<Bundle>(std::string, bool)> getBundle,
-                        folly::Optional<std::function<JSModulesUnbundle::Module(uint32_t, uint32_t)>> getModule) override;
+  void setupEnvironment(std::function<void(std::string, bool)> loadBundle,
+                        folly::Optional<std::function<JSModulesUnbundle::Module(uint32_t)>> getModule) override;
   void loadScript(
       std::unique_ptr<const JSBigString> script,
       std::string sourceURL) override;
