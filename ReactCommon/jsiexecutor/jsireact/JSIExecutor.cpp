@@ -67,8 +67,8 @@ JSIExecutor::JSIExecutor(
       *runtime, "__jsiExecutorDescription", runtime->description());
 }
 
-void JSIExecutor::setupEnvironment(std::function<std::weak_ptr<Bundle>(std::string, bool)> getBundle,
-                                   folly::Optional<std::function<JSModulesUnbundle::Module(uint32_t, uint32_t)>> getModule) {
+void JSIExecutor::setupEnvironment(std::function<void(std::string, bool)> loadBundle,
+                                   folly::Optional<std::function<JSModulesUnbundle::Module(uint32_t)>> getModule) {
   SystraceSection s("JSIExecutor::setupEnvironment");
 
   runtime_->global().setProperty(
@@ -116,7 +116,7 @@ void JSIExecutor::setupEnvironment(std::function<std::weak_ptr<Bundle>(std::stri
       *runtime_,
       PropNameID::forAscii(*runtime_, "bundleRegistryLoad"),
       2,
-      [this, getBundle](jsi::Runtime&,
+      [this, loadBundle](jsi::Runtime&,
              const jsi::Value&,
              const jsi::Value* args,
              size_t count) {
@@ -125,21 +125,11 @@ void JSIExecutor::setupEnvironment(std::function<std::weak_ptr<Bundle>(std::stri
         }
 
         std::string bundlePath = args[0].getString(*runtime_).utf8(*runtime_);
-        bool inCurrentContext = args[1].getBool();
-        std::weak_ptr<Bundle> bundle = getBundle(bundlePath, inCurrentContext);
-        auto bundleInstance = bundle.lock();
-        runtime_->evaluateJavaScript(std::make_unique<StringBuffer>(std::string(bundleInstance->getSource()->c_str())),
-                                     bundleInstance->getSourceURL());
+        bool inCurrentEnvironment = args[1].getBool();
+        loadBundle(bundlePath, inCurrentEnvironment);
 
         return facebook::jsi::Value();
       }));
-
-  // TODO: figure it out
-  // runtime_->global().setProperty(
-  //   *runtime_,
-  //   "bundleRegistryOnLoad",
-
-  // );
   
   if (getModule) {
     // Setup nativeRequire since it's running a RAM bundle.
@@ -149,18 +139,17 @@ void JSIExecutor::setupEnvironment(std::function<std::weak_ptr<Bundle>(std::stri
       Function::createFromHostFunction(
         *runtime_,
         PropNameID::forAscii(*runtime_, "nativeRequire"),
-        2,
+        1,
         [this, getModule](Runtime& rt,
                const facebook::jsi::Value&,
                const facebook::jsi::Value* args,
                size_t count) {
-          if (count > 2 || count == 0) {
+          if (count != 1) {
             throw std::invalid_argument("Got wrong number of args");
           }
 
           uint32_t moduleId = folly::to<uint32_t>(args[0].getNumber());
-          uint32_t bundleId = count == 2 ? folly::to<uint32_t>(args[1].getNumber()) : 0;
-          auto module = (*getModule)(bundleId, moduleId);
+          auto module = (*getModule)(moduleId);
 
           runtime_->evaluateJavaScript(
               std::make_unique<StringBuffer>(module.code), module.name);
