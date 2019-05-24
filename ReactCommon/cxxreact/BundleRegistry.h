@@ -27,9 +27,12 @@ class BundleRegistry {
     void runNewExecutionEnvironment(std::unique_ptr<const Bundle> initialBundle,
                                     std::function<void()> callback);
     void disposeExecutionEnvironments();
+    // TODO: get rid of this
+    std::weak_ptr<BundleExecutionEnvironment> getFirstExecutionEnvironemnt();
+
 
   private:
-    std::vector<BundleExecutionEnvironment> bundleExecutionEnvironments_;
+    std::vector<std::unique_ptr<BundleExecutionEnvironment>> bundleExecutionEnvironments_;
     std::vector<std::shared_ptr<const Bundle>> bundles_;
     JSExecutorFactory* jsExecutorFactory_;
     std::shared_ptr<ModuleRegistry> moduleRegistry_;
