@@ -14,6 +14,7 @@ class BundleRegistry {
       std::shared_ptr<MessageQueueThread> jsQueue;
       std::unique_ptr<NativeToJsBridge> nativeToJsBridge;
       std::weak_ptr<const Bundle> initialBundle;
+      bool valid;
     };
 
     BundleRegistry(JSExecutorFactory* jsExecutorFactory,
@@ -32,7 +33,7 @@ class BundleRegistry {
 
 
   private:
-    std::vector<std::unique_ptr<BundleExecutionEnvironment>> bundleExecutionEnvironments_;
+    std::vector<std::shared_ptr<BundleExecutionEnvironment>> bundleExecutionEnvironments_;
     std::vector<std::shared_ptr<const Bundle>> bundles_;
     JSExecutorFactory* jsExecutorFactory_;
     std::shared_ptr<ModuleRegistry> moduleRegistry_;

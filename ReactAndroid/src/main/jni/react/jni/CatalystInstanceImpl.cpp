@@ -172,11 +172,12 @@ void CatalystInstanceImpl::extendNativeModules(
 }
 
 void CatalystInstanceImpl::jniSetSourceURL(const std::string& sourceURL) {
-  instance_->setSourceURL(sourceURL);
+  // TODO: figure out what to do with it
+  // instance_->setSourceURL(sourceURL);
 }
 
 void CatalystInstanceImpl::jniRegisterSegment(int segmentId, const std::string& path) {
-  instance_->registerBundle((uint32_t)segmentId, path);
+  // TODO: remove
 }
 
 void CatalystInstanceImpl::jniLoadScriptFromAssets(
@@ -188,48 +189,51 @@ void CatalystInstanceImpl::jniLoadScriptFromAssets(
 
   auto manager = extractAssetManager(assetManager);
   auto script = loadScriptFromAssets(manager, sourceURL);
-  if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
-    auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
-    auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
-    instance_->loadRAMBundle(
-      std::move(registry),
-      std::move(script),
-      sourceURL,
-      loadSynchronously);
-    return;
-  } else if (Instance::isIndexedRAMBundle(&script)) {
-    instance_->loadRAMBundleFromString(std::move(script), sourceURL);
-  } else {
-    instance_->loadScriptFromString(std::move(script), sourceURL, loadSynchronously);
-  }
+  // TODO: add check for bundles and create them
+  // instance_->loadBundle(, loadSynchronously);
+  // if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
+  //   auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
+  //   auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
+  //   instance_->loadRAMBundle(
+  //     std::move(registry),
+  //     std::move(script),
+  //     sourceURL,
+  //     loadSynchronously);
+  //   return;
+  // } else if (Instance::isIndexedRAMBundle(&script)) {
+  //   instance_->loadRAMBundleFromString(std::move(script), sourceURL);
+  // } else {
+  //   instance_->loadScriptFromString(std::move(script), sourceURL, loadSynchronously);
+  // }
 }
 
 void CatalystInstanceImpl::jniLoadScriptFromFile(const std::string& fileName,
                                                  const std::string& sourceURL,
                                                  bool loadSynchronously) {
-  if (Instance::isIndexedRAMBundle(fileName.c_str())) {
-    instance_->loadRAMBundleFromFile(fileName, sourceURL, loadSynchronously);
-  } else {
-    std::unique_ptr<const JSBigFileString> script;
-    RecoverableError::runRethrowingAsRecoverable<std::system_error>(
-      [&fileName, &script]() {
-        script = JSBigFileString::fromPath(fileName);
-      });
-    instance_->loadScriptFromString(std::move(script), sourceURL, loadSynchronously);
-  }
+  // TODO: implement
+  // if (Instance::isIndexedRAMBundle(fileName.c_str())) {
+  //   instance_->loadRAMBundleFromFile(fileName, sourceURL, loadSynchronously);
+  // } else {
+  //   std::unique_ptr<const JSBigFileString> script;
+  //   RecoverableError::runRethrowingAsRecoverable<std::system_error>(
+  //     [&fileName, &script]() {
+  //       script = JSBigFileString::fromPath(fileName);
+  //     });
+  //   instance_->loadScriptFromString(std::move(script), sourceURL, loadSynchronously);
+  // }
 }
 
 void CatalystInstanceImpl::jniLoadScriptFromDeltaBundle(
     const std::string& sourceURL,
     jni::alias_ref<NativeDeltaClient::jhybridobject> jDeltaClient,
     bool loadSynchronously) {
+  // TODO: implement
+  // auto deltaClient = jDeltaClient->cthis()->getDeltaClient();
+  // auto registry = RAMBundleRegistry::singleBundleRegistry(
+  //   folly::make_unique<JSDeltaBundleClientRAMBundle>(deltaClient));
 
-  auto deltaClient = jDeltaClient->cthis()->getDeltaClient();
-  auto registry = RAMBundleRegistry::singleBundleRegistry(
-    folly::make_unique<JSDeltaBundleClientRAMBundle>(deltaClient));
-
-  instance_->loadRAMBundle(
-    std::move(registry), deltaClient->getStartupCode(), sourceURL, loadSynchronously);
+  // instance_->loadRAMBundle(
+  //   std::move(registry), deltaClient->getStartupCode(), sourceURL, loadSynchronously);
 }
 
 void CatalystInstanceImpl::jniCallJSFunction(std::string module, std::string method, NativeArray* arguments) {
