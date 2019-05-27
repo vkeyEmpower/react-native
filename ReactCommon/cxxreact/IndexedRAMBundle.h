@@ -23,6 +23,7 @@ public:
   Module getModule(uint32_t moduleId) const override;
   
   BundleType bundleType = BundleType::IndexedRAMBundle;
+
 private:
   struct ModuleData {
     uint32_t offset;
@@ -44,19 +45,20 @@ private:
     }
   };
 
+  void init();
   std::string getModuleCode(const uint32_t id) const;
   void readBundle(char *buffer, const std::streamsize bytes) const;
   void readBundle(
     char *buffer, const
     std::streamsize bytes,
-    const std::ifstream::pos_type position) const;
+    const std::istream::pos_type position) const;
 
-  std::string _sourceURL;
-  std::string _sourcePath;
-  std::shared_ptr<const JSBigString> m_startupScript;
-  mutable std::unique_ptr<std::istream> m_bundle;
-  ModuleTable m_table;
-  size_t m_baseOffset;
+  std::string sourceURL_;
+  std::string sourcePath_;
+  std::shared_ptr<const JSBigBufferString> startupScript_;
+  mutable std::unique_ptr<std::istream> bundle_;
+  ModuleTable table_;
+  size_t baseOffset_;
 };
 
 } // react
