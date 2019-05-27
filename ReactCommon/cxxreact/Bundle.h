@@ -1,13 +1,18 @@
 #pragma once
 
 #include <memory>
-#include "BundleRegistry.h"
 #include "JSBigString.h"
 
 namespace facebook {
 namespace react {
 
-// TODO: add types as enum
+enum struct BundleType {
+  BasicBundle = 0,
+  IndexedRAMBundle,
+  FileRAMBundle,
+  DeltaBundle,
+};
+
 class Bundle {
   public:
     Bundle() = default;
@@ -15,8 +20,9 @@ class Bundle {
     Bundle& operator=(const Bundle&) = delete;
     virtual ~Bundle();
 
-    virtual std::string getSourcePath() const = 0;
     virtual std::string getSourceURL() const = 0;
+    
+    BundleType bundleType;
 };
 
 } // react
