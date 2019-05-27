@@ -195,7 +195,7 @@ void CatalystInstanceImpl::jniLoadScriptFromAssets(
   // TODO: refactor + add checks
   std::unique_ptr<IndexedRAMBundle> bundle =
     std::make_unique<IndexedRAMBundle>(std::move(script), assetURL, sourceURL);
-  //instance_->loadBundle(std::move(bundle), loadSynchronously);
+  instance_->loadBundle(std::move(bundle), loadSynchronously);
 
   // if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
   //   auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
