@@ -55,7 +55,7 @@ private:
 
   std::string sourceURL_;
   std::string sourcePath_;
-  std::shared_ptr<const JSBigBufferString> startupScript_;
+  std::shared_ptr<JSBigBufferString> startupScript_;
   mutable std::unique_ptr<std::istream> bundle_;
   ModuleTable table_;
   size_t baseOffset_;
