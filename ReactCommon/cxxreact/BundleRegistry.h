@@ -33,6 +33,7 @@ class BundleRegistry {
     void disposeExecutionEnvironments();
     // TODO: get rid of this
     std::weak_ptr<BundleExecutionEnvironment> getFirstExecutionEnvironemnt();
+    bool hasExecutionEnvironemnt();
 
 
   private:
