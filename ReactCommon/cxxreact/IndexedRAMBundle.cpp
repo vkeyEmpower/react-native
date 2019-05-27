@@ -20,12 +20,12 @@ IndexedRAMBundle::IndexedRAMBundle(std::string sourcePath, std::string sourceURL
 }
 
 IndexedRAMBundle::IndexedRAMBundle(std::string sourcePath,
-                  std::string sourceURL,
-                  std::unique_ptr<const JSBigString> script) {
+                                   std::string sourceURL,
+                                   std::unique_ptr<const JSBigString> script) {
   // tmpStream is needed because bundle_ is std::istream type
   // which has no member 'write'
-  std::unique_ptr<std::stringstream> tmpStream = std::make_unique<std::stringstream>(
-    std::stringstream());
+  std::unique_ptr<std::stringstream> tmpStream =
+    std::make_unique<std::stringstream>(std::stringstream());
   tmpStream->write(script->c_str(), script->size());
   bundle_ = std::move(tmpStream);
   sourcePath_ = sourcePath;
