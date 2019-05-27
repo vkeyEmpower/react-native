@@ -123,27 +123,33 @@ void Instance::setGlobalVariable(std::string propName,
 }
 
 void* Instance::getJavaScriptContext() {
-  if (auto execEnv = bundleRegistry_->getFirstExecutionEnvironemnt().lock()) {
-    return execEnv->nativeToJsBridge ? execEnv->nativeToJsBridge->getJavaScriptContext() : nullptr;
-  } else {
-    return nullptr;
+  if (bundleRegistry_->hasExecutionEnvironemnt()) {
+    if (auto execEnv = bundleRegistry_->getFirstExecutionEnvironemnt().lock()) {
+      return execEnv->nativeToJsBridge ? execEnv->nativeToJsBridge->getJavaScriptContext() : nullptr;
+    }
   }
+
+  return nullptr;
 }
 
 bool Instance::isInspectable() {
-  if (auto execEnv = bundleRegistry_->getFirstExecutionEnvironemnt().lock()) {
-    return execEnv->nativeToJsBridge ? execEnv->nativeToJsBridge->isInspectable() : false;
-  } else {
-    return false;
+  if (bundleRegistry_->hasExecutionEnvironemnt()) {
+    if (auto execEnv = bundleRegistry_->getFirstExecutionEnvironemnt().lock()) {
+      return execEnv->nativeToJsBridge ? execEnv->nativeToJsBridge->isInspectable() : false;
+    }
   }
+  
+  return false;
 }
   
 bool Instance::isBatchActive() {
-   if (auto execEnv = bundleRegistry_->getFirstExecutionEnvironemnt().lock()) {
-    return execEnv->nativeToJsBridge ? execEnv->nativeToJsBridge->isBatchActive() : false;
-  } else {
-    return false;
+  if (bundleRegistry_->hasExecutionEnvironemnt()) {
+    if (auto execEnv = bundleRegistry_->getFirstExecutionEnvironemnt().lock()) {
+      return execEnv->nativeToJsBridge ? execEnv->nativeToJsBridge->isBatchActive() : false;
+    }
   }
+  
+  return false;
 }
 
 void Instance::callJSFunction(std::string &&module, std::string &&method,

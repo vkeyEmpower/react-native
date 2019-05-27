@@ -51,5 +51,9 @@ std::weak_ptr<BundleRegistry::BundleExecutionEnvironment> BundleRegistry::getFir
   return std::weak_ptr<BundleExecutionEnvironment>(bundleExecutionEnvironments_[0]);
 }
 
+bool BundleRegistry::hasExecutionEnvironemnt() {
+  return bundleExecutionEnvironments_.size() > 0;
+}
+
 } // react
 } // facebook
