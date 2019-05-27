@@ -9,7 +9,7 @@ namespace react {
 
 class BasicBundle : public Bundle {
   public:
-    BasicBundle(std::string sourceURL, std::unique_ptr<const JSBigString> script);
+    BasicBundle(std::unique_ptr<const JSBigString> script, std::string sourceURL);
 
     std::string getSourceURL() const override;
     std::shared_ptr<const JSBigString> getScript();
