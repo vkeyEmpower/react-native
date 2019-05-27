@@ -16,8 +16,8 @@ class BasicBundle : public Bundle {
     
     BundleType bundleType = BundleType::BasicBundle;
   private:
-    std::string _sourceURL;
-    std::shared_ptr<const JSBigString> _script
+    std::string sourceURL_;
+    std::shared_ptr<const JSBigString> script_;
 };
 
 } // react

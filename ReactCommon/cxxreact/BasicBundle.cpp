@@ -4,16 +4,16 @@ namespace facebook {
 namespace react {
     
   BasicBundle::BasicBundle(std::string sourceURL, std::unique_ptr<const JSBigString> script) {
-    _sourceURL = sourceURL;
-    _script = std::move(script);
+    sourceURL_ = sourceURL;
+    script_ = std::move(script);
   }
 
   std::string BasicBundle::getSourceURL() const {
-    return _sourceURL;
+    return sourceURL_;
   }
 
-  std::shared_ptr<const JSBigString> BasicBundle::getScript() const {
-    return _script;
+  std::shared_ptr<const JSBigString> BasicBundle::getScript() {
+    return script_;
   }
 
 } // react
