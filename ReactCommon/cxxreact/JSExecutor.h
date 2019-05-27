@@ -12,7 +12,6 @@
 #include <folly/dynamic.h>
 #include <folly/Optional.h>
 #include "JSModulesUnbundle.h"
-#include "BundleRegistry.h"
 
 #ifndef RN_EXPORT
 #define RN_EXPORT __attribute__((visibility("default")))

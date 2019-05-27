@@ -1,12 +1,15 @@
 #pragma once
 
 #include <memory>
-#include <cxxreact/NativeToJsBridge.h>
+#include "NativeToJsBridge.h"
 #include "Bundle.h"
-#include "Instance.h"
+#include "MessageQueueThread.h"
 
 namespace facebook {
 namespace react {
+
+struct InstanceCallback;
+class ModuleRegistry;
 
 class BundleRegistry {
   public:
