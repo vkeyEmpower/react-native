@@ -23,6 +23,8 @@ void BundleRegistry::runNewExecutionEnvironment(std::unique_ptr<const Bundle> in
   std::shared_ptr<BundleExecutionEnvironment> execEnv = std::make_shared<BundleExecutionEnvironment>();
   execEnv->valid = false;
   execEnv->jsQueue = jsQueueFactory_();
+  bundles_.push_back(std::move(initialBundle));
+  execEnv->initialBundle = std::weak_ptr<const Bundle>(bundles_.back());
   bundleExecutionEnvironments_.push_back(std::move(execEnv));
 
   execEnv = bundleExecutionEnvironments_.back();
