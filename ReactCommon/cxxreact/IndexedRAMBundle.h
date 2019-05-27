@@ -13,9 +13,9 @@ public:
   IndexedRAMBundle(std::string sourcePath, std::string sourceURL);
 
   // For Android IndexedRAMBundle loaded from Assets
-  IndexedRAMBundle(std::string sourcePath,
-                   std::string sourceURL,
-                   std::unique_ptr<const JSBigString> script);
+  IndexedRAMBundle(std::unique_ptr<const JSBigString> script,
+                   std::string sourcePath,
+                   std::string sourceURL);
 
   std::string getSourceURL() const override;
   std::string getSourcePath() const override;

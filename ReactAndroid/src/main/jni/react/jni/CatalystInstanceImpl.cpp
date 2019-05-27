@@ -12,6 +12,7 @@
 
 #include <cxxreact/CxxNativeModule.h>
 #include <cxxreact/Instance.h>
+#include <cxxreact/IndexedRAMBundle.h>
 #include <cxxreact/JSBigString.h>
 #include <cxxreact/JSBundleType.h>
 #include <cxxreact/JSDeltaBundleClient.h>
@@ -189,8 +190,11 @@ void CatalystInstanceImpl::jniLoadScriptFromAssets(
 
   auto manager = extractAssetManager(assetManager);
   auto script = loadScriptFromAssets(manager, sourceURL);
-  // TODO: add check for bundles and create them
-  // instance_->loadBundle(, loadSynchronously);
+  // TODO: refactor + add checks
+  std::unique_ptr<IndexedRAMBundle> bundle =
+    std::make_unique<IndexedRAMBundle>(std::move(script), assetURL, sourceURL);
+  //instance_->loadBundle(std::move(bundle), loadSynchronously);
+
   // if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
   //   auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
   //   auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));

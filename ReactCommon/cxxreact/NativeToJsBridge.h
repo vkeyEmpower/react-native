@@ -10,7 +10,8 @@
 #include <map>
 #include <vector>
 
-#include <cxxreact/JSExecutor.h>
+#include "JSExecutor.h"
+#include "JSBigString.h"
 
 namespace folly {
 struct dynamic;

@@ -8,7 +8,6 @@
 #include <condition_variable>
 #include <memory>
 
-#include <cxxreact/NativeToJsBridge.h>
 #include "BundleRegistry.h"
 
 #ifndef RN_EXPORT
@@ -26,7 +25,7 @@ class JSBigString;
 class JSExecutorFactory;
 class MessageQueueThread;
 class ModuleRegistry;
-class RAMBundleRegistry;
+// class RAMBundleRegistry;
 
 struct InstanceCallback {
   virtual ~InstanceCallback() {}
