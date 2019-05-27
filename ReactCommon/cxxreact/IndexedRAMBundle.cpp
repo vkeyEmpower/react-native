@@ -69,8 +69,7 @@ IndexedRAMBundle::Module IndexedRAMBundle::getModule(uint32_t moduleId) const {
 }
 
 std::shared_ptr<const JSBigString> IndexedRAMBundle::getStartupScript() const {
-  CHECK(startupScript_) << "startup code for a RAM Bundle can only be retrieved once";
-  return std::move(startupScript_);
+  return startupScript_;
 }
 
 std::string IndexedRAMBundle::getModuleCode(const uint32_t id) const {
