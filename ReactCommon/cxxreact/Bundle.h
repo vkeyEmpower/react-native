@@ -22,7 +22,7 @@ class Bundle {
 
     virtual std::string getSourceURL() const = 0;
     
-    virtual BundleType bundleType const = 0;
+    BundleType bundleType;
 };
 
 } // react
