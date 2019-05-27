@@ -18,7 +18,7 @@ class Bundle {
     Bundle() = default;
     Bundle(const Bundle&) = delete;
     Bundle& operator=(const Bundle&) = delete;
-    virtual ~Bundle();
+    virtual ~Bundle() {};
 
     virtual std::string getSourceURL() const = 0;
     

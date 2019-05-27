@@ -16,6 +16,7 @@ public:
   IndexedRAMBundle(std::unique_ptr<const JSBigString> script,
                    std::string sourcePath,
                    std::string sourceURL);
+  ~IndexedRAMBundle() {}
 
   std::string getSourceURL() const override;
   std::string getSourcePath() const override;

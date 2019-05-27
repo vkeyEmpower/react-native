@@ -61,6 +61,14 @@ void IndexedRAMBundle::init() {
   readBundle(startupScript_->data(), startupCodeSize - 1);
 }
 
+std::string IndexedRAMBundle::getSourceURL() const {
+  return sourceURL_;
+}
+
+std::string IndexedRAMBundle::getSourcePath() const {
+  return sourcePath_;
+}
+
 IndexedRAMBundle::Module IndexedRAMBundle::getModule(uint32_t moduleId) const {
   Module ret;
   ret.name = folly::to<std::string>(moduleId, ".js");
