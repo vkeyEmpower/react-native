@@ -72,6 +72,7 @@ import com.facebook.react.common.LifecycleState;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.common.annotations.VisibleForTesting;
 import com.facebook.react.devsupport.DevSupportManagerFactory;
+import com.facebook.react.devsupport.DevBundlesContainer;
 import com.facebook.react.devsupport.ReactInstanceManagerDevHelper;
 import com.facebook.react.devsupport.RedBoxHandler;
 import com.facebook.react.devsupport.interfaces.DevBundleDownloadListener;
@@ -168,6 +169,8 @@ public class ReactInstanceManager {
   private final @Nullable NativeModuleCallExceptionHandler mNativeModuleCallExceptionHandler;
   private final @Nullable JSIModulePackage mJSIModulePackage;
   private List<ViewManager> mViewManagers;
+  private DevBundlesContainer mDevBundlesContainer;
+  private String mSourceURL;
 
   private class ReactContextInitParams {
     private final JavaScriptExecutorFactory mJsExecutorFactory;
@@ -283,8 +286,10 @@ public class ReactInstanceManager {
       }
 
       @Override
-      public void onJSBundleLoadedFromServer(@Nullable NativeDeltaClient nativeDeltaClient) {
-        ReactInstanceManager.this.onJSBundleLoadedFromServer(nativeDeltaClient);
+      public void onJSBundleLoadedFromServer(String sourceURL, DevBundlesContainer bundlesContainer, @Nullable NativeDeltaClient nativeDeltaClient) {
+        mDevBundlesContainer = bundlesContainer;
+        mSourceURL = sourceURL;
+        ReactInstanceManager.this.onJSBundleLoadedFromServer(sourceURL, bundlesContainer, nativeDeltaClient);
       }
 
       @Override
@@ -371,7 +376,7 @@ public class ReactInstanceManager {
           !devSettings.isRemoteJSDebugEnabled()) {
         // If there is a up-to-date bundle downloaded from server,
         // with remote JS debugging disabled, always use that.
-        onJSBundleLoadedFromServer(null);
+        onJSBundleLoadedFromServer(mSourceURL, mDevBundlesContainer, null);
         return;
       }
 
@@ -879,13 +884,11 @@ public class ReactInstanceManager {
   }
 
   @ThreadConfined(UI)
-  private void onJSBundleLoadedFromServer(@Nullable NativeDeltaClient nativeDeltaClient) {
+  private void onJSBundleLoadedFromServer(String sourceURL, DevBundlesContainer bundlesContainer, @Nullable NativeDeltaClient nativeDeltaClient) {
     Log.d(ReactConstants.TAG, "ReactInstanceManager.onJSBundleLoadedFromServer()");
 
     JSBundleLoader bundleLoader = nativeDeltaClient == null
-        ? JSBundleLoader.createCachedBundleFromNetworkLoader(
-            mDevSupportManager.getSourceUrl(),
-            mDevSupportManager.getDownloadedJSBundleFile())
+        ? JSBundleLoader.createCachedBundleFromNetworkLoader(sourceURL, bundlesContainer)
         : JSBundleLoader.createDeltaFromNetworkLoader(
             mDevSupportManager.getSourceUrl(), nativeDeltaClient);
 
