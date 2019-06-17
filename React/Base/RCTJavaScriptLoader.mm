@@ -9,7 +9,7 @@
 
 #import <sys/stat.h>
 
-#import <cxxreact/JSBundleType.h>
+#import <cxxreact/Bundle.h>
 
 #import "RCTBridge.h"
 #import "RCTConvert.h"
@@ -151,12 +151,14 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     return nil;
   }
 
-  facebook::react::ScriptTag tag = facebook::react::parseTypeFromHeader(header);
+  facebook::react::BundleType tag = facebook::react::Bundle::parseTypeFromHeader(header);
   switch (tag) {
-  case facebook::react::ScriptTag::RAMBundle:
+    case facebook::react::BundleType::IndexedRAMBundle:
+    case facebook::react::BundleType::FileRAMBundle:
+    case facebook::react::BundleType::DeltaBundle:
     break;
 
-  case facebook::react::ScriptTag::String: {
+  case facebook::react::BundleType::BasicBundle: {
 #if RCT_ENABLE_INSPECTOR
     NSData *source = [NSData dataWithContentsOfFile:scriptURL.path
                                             options:NSDataReadingMappedIfSafe
@@ -175,7 +177,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     return nil;
 #endif
   }
-  case facebook::react::ScriptTag::BCBundle:
+    case facebook::react::BundleType::BCBundle:
     if (runtimeBCVersion == JSNoBytecodeFileFormatVersion || runtimeBCVersion < 0) {
       if (error) {
         *error = [NSError errorWithDomain:RCTJavaScriptLoaderErrorDomain

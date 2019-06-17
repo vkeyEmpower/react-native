@@ -26,12 +26,14 @@
 #import <React/RCTRedBox.h>
 #import <React/RCTUtils.h>
 #import <React/RCTFollyConvert.h>
+#import <React/RCTFileBundleLoader.h>
 #import <cxxreact/CxxNativeModule.h>
 #import <cxxreact/Instance.h>
-#import <cxxreact/JSBundleType.h>
-#import <cxxreact/JSIndexedRAMBundle.h>
+#import <cxxreact/Bundle.h>
+#import <cxxreact/BundleLoader.h>
+#import <cxxreact/IndexedRAMBundle.h>
 #import <cxxreact/ModuleRegistry.h>
-#import <cxxreact/RAMBundleRegistry.h>
+#import <cxxreact/BundleRegistry.h>
 #import <cxxreact/ReactMarker.h>
 #import <jsireact/JSIExecutor.h>
 
@@ -39,6 +41,7 @@
 #import "NSDataBigString.h"
 #import "RCTMessageThread.h"
 #import "RCTObjcExecutor.h"
+
 
 #ifdef WITH_FBSYSTRACE
 #import <React/RCTFBSystrace.h>
@@ -91,12 +94,6 @@ private:
   std::shared_ptr<JSExecutorFactory> factory_;
 };
 
-}
-
-static bool isRAMBundle(NSData *script) {
-  BundleHeader header;
-  [script getBytes:&header length:sizeof(header)];
-  return parseTypeFromHeader(header) == ScriptTag::RAMBundle;
 }
 
 static void registerPerformanceLoggerHooks(RCTPerformanceLogger *performanceLogger) {
@@ -1286,20 +1283,26 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
     [[NSNotificationCenter defaultCenter]
       postNotificationName:RCTJavaScriptWillStartExecutingNotification
       object:self->_parentBridge userInfo:@{@"bridge": self}];
-    if (isRAMBundle(script)) {
+    if (url.isFileURL) {
+      std::unique_ptr<RCTFileBundleLoader> loader = std::make_unique<RCTFileBundleLoader>();
+    } else {
+      
+      //TODO create bundle loader
+    }
+    if (IndexedRAMBundle::isIndexedRAMBundle(sourceUrlStr.UTF8String)) {
       [self->_performanceLogger markStartForTag:RCTPLRAMBundleLoad];
-      auto ramBundle = std::make_unique<JSIndexedRAMBundle>(sourceUrlStr.UTF8String);
-      std::unique_ptr<const JSBigString> scriptStr = ramBundle->getStartupCode();
+      auto ramBundle = std::make_unique<IndexedRAMBundle>(sourceUrlStr.UTF8String, sourceUrlStr.UTF8String);
+      std::unique_ptr<const JSBigString> scriptStr = ramBundle->getStartupScript();
       [self->_performanceLogger markStopForTag:RCTPLRAMBundleLoad];
       [self->_performanceLogger setValue:scriptStr->size() forTag:RCTPLRAMStartupCodeSize];
       if (self->_reactInstance) {
-        auto registry = RAMBundleRegistry::multipleBundlesRegistry(std::move(ramBundle), JSIndexedRAMBundle::buildFactory());
-        self->_reactInstance->loadRAMBundle(std::move(registry), std::move(scriptStr),
-                                            sourceUrlStr.UTF8String, !async);
+//        auto registry = RAMBundleRegistry::multipleBundlesRegistry(std::move(ramBundle), JSIndexedRAMBundle::buildFactory());
+//        self->_reactInstance->loadRAMBundle(std::move(registry), std::move(scriptStr),
+//                                            sourceUrlStr.UTF8String, !async);
       }
     } else if (self->_reactInstance) {
-      self->_reactInstance->loadScriptFromString(std::make_unique<NSDataBigString>(script),
-                                                 sourceUrlStr.UTF8String, !async);
+//      self->_reactInstance->loadScriptFromString(std::make_unique<NSDataBigString>(script),
+//                                                 sourceUrlStr.UTF8String, !async);
     } else {
       std::string methodName = async ? "loadApplicationScript" : "loadApplicationScriptSync";
       throw std::logic_error("Attempt to call " + methodName + ": on uninitialized bridge");
@@ -1307,12 +1310,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
   }];
 }
 
-- (void)registerSegmentWithId:(NSUInteger)segmentId path:(NSString *)path
-{
-  if (_reactInstance) {
-    _reactInstance->registerBundle(static_cast<uint32_t>(segmentId), path.UTF8String);
-  }
-}
+//- (void)registerSegmentWithId:(NSUInteger)segmentId path:(NSString *)path
+//{
+//  if (_reactInstance) {
+//    _reactInstance->registerBundle(static_cast<uint32_t>(segmentId), path.UTF8String);
+//  }
+//}
 
 #pragma mark - Payload Processing
 
