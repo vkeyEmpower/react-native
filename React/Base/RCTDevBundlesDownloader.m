@@ -161,13 +161,25 @@ static void attemptAsynchronousLoadOfBundleAtURL(NSURL *scriptURL, RCTDevBundleP
 }
 
 static void downloadAdditionalBundles(NSArray<NSString *> *bundles, NSMutableDictionary *bundlesContainer, RCTDevBundlesLoadBlock onComplete) {
+  dispatch_group_t downloadAdditionalBundles = dispatch_group_create();
+  __block NSError *err;
+  for(NSString * bundleName in bundles) {
+    dispatch_group_enter(downloadAdditionalBundles);
+    NSURL *bundleURL = getBundleURLFromName(bundleName);
+    attemptAsynchronousLoadOfBundleAtURL(bundleURL, ^(RCTDevBundleLoadingProgress *progressData) {
+      //TODO
+    }, ^(NSError *error, RCTDevBundleSource *bundleSource, NSArray<NSString *> *additionalBundles) {
+      if(error) {
+        err = error;
+      }
+      [bundlesContainer setValue:bundleSource forKey:bundleURL.absoluteString];
+      dispatch_group_leave(downloadAdditionalBundles);
+    });
+  }
   
- //TODO
-}
-
-static NSString *getBundleNameFromURL(NSString *sourceURL) {
-  // TODO
-  return @"index";
+  dispatch_group_notify(downloadAdditionalBundles, dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+    onComplete(err, bundlesContainer);
+  });
 }
 
 static NSURL *getBundleURLFromName(NSString *bundleName) {
