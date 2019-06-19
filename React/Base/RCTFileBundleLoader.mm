@@ -5,12 +5,14 @@
 #import <cxxreact/IndexedRAMBundle.h>
 #import <cxxreact/BasicBundle.h>
 #import "NSDataBigString.h"
+#import "RCTPerformanceLogger.h"
+#import "RCTUtils.h"
 
 
 NSString *const RCTFileBundleLoaderErrorDomain = @"RCTFileBundleLoaderErrorDomain";
 static const int32_t JSNoBytecodeFileFormatVersion = -1;
 
-//TODO FIGURE OUT ERRORS
+//TODO FIGURE HOW TO THROW ERRORS HERE
 namespace facebook {
   namespace react {
     
@@ -38,8 +40,8 @@ namespace facebook {
         }
         return nil;
       }
-      facebook::react::BundleType tag = facebook::react::Bundle::parseTypeFromHeader(header);
-      switch (tag) {
+      
+      switch (facebook::react::Bundle::parseTypeFromHeader(header)) {
         case facebook::react::BundleType::IndexedRAMBundle: {
           struct stat statInfo;
           if (stat(bundleURL.c_str(), &statInfo) != 0) {
@@ -60,57 +62,44 @@ namespace facebook {
           // Not sure if delta or file RAM bundles are supported on iOS
           return nil;
         case facebook::react::BundleType::BasicBundle: {
-#if RCT_ENABLE_INSPECTOR
-          NSData *source = [NSData dataWithContentsOfFile:bundleURL
+          NSData *source = [NSData dataWithContentsOfFile:[NSString stringWithUTF8String:bundleURL.c_str()]
                                                   options:NSDataReadingMappedIfSafe
-                                                    error:error];
-          if (sourceLength && source != nil) {
-            *sourceLength = source.length;
-          }
+                                                    error:&error];
           std::unique_ptr<const NSDataBigString> script = std::make_unique<const NSDataBigString>(source);
-          std::unique_ptr<const BasicBundle> = std::make_unique<BasicBundle>(std::move(script), bundleURL);
-          return ;
-#else
-          if (error) {
-            error = [NSError errorWithDomain:RCTFileBundleLoaderErrorDomain
-                                         code:RCTFileBundleLoaderErrorCannotBeLoadedSynchronously
-                                     userInfo:@{NSLocalizedDescriptionKey:
-                                                  @"Cannot load text/javascript files synchronously"}];
-          }
-          return nil;
-#endif
+          return std::make_unique<BasicBundle>(std::move(script), bundleURL);
         }
-        // WHAT IS IT FOR?
-        case facebook::react::BundleType::BCBundle:{
-          if (runtimeBCVersion == JSNoBytecodeFileFormatVersion || runtimeBCVersion < 0) {
-            if (error) {
-              error = [NSError errorWithDomain:RCTFileBundleLoaderErrorDomain
-                                           code:RCTFileBundleLoaderErrorBCNotSupported
-                                       userInfo:@{NSLocalizedDescriptionKey:
-                                                    @"Bytecode bundles are not supported by this runtime."}];
-            }
-            return nil;
-          }
-          else if ((uint32_t)runtimeBCVersion != header.version) {
-            if (error) {
-              NSString *errDesc =
-              [NSString stringWithFormat:@"BC Version Mismatch. Expect: %d, Actual: %u",
-               runtimeBCVersion, header.version];
+         // WHAT IS IT FOR?
+         case facebook::react::BundleType::BCBundle:{
+           if (runtimeBCVersion == JSNoBytecodeFileFormatVersion || runtimeBCVersion < 0) {
+             if (error) {
+               error = [NSError errorWithDomain:RCTFileBundleLoaderErrorDomain
+                                            code:RCTFileBundleLoaderErrorBCNotSupported
+                                        userInfo:@{NSLocalizedDescriptionKey:
+                                                     @"Bytecode bundles are not supported by this runtime."}];
+             }
+             return nil;
+           }
+           else if ((uint32_t)runtimeBCVersion != header.version) {
+             if (error) {
+               NSString *errDesc =
+               [NSString stringWithFormat:@"BC Version Mismatch. Expect: %d, Actual: %u",
+                runtimeBCVersion, header.version];
               
-              error = [NSError errorWithDomain:RCTFileBundleLoaderErrorDomain
-                                           code:RCTFileBundleLoaderErrorBCVersion
-                                       userInfo:@{NSLocalizedDescriptionKey: errDesc}];
-            }
-            return nil;
-          }
-          break;
-        }
+               error = [NSError errorWithDomain:RCTFileBundleLoaderErrorDomain
+                                            code:RCTFileBundleLoaderErrorBCVersion
+                                        userInfo:@{NSLocalizedDescriptionKey: errDesc}];
+             }
+             return nil;
+           }
+           break;
+         }
       }
+      return  nil;
     }
     
     std::string RCTFileBundleLoader::getBundleURLFromName(std::string bundleName) const {
-      //TODO 
-//      return bundlesContainer_->getSourceURLByName(bundleName);
+      //TODO
+      
       return "index";
     }
     

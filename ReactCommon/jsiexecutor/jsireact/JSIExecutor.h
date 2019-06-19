@@ -6,8 +6,7 @@
 #pragma once
 
 #include "JSINativeModules.h"
-
-#include <cxxreact/JSBigString.h>
+//#include <cxxreact/JSBigString.h>
 #include <cxxreact/JSExecutor.h>
 #include <jsi/jsi.h>
 #include <functional>

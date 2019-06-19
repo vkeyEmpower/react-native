@@ -398,9 +398,4 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   [self.batchedBridge enqueueCallback:cbID args:args];
 }
 
-- (void)registerSegmentWithId:(NSUInteger)segmentId path:(NSString *)path
-{
-  [self.batchedBridge registerSegmentWithId:segmentId path:path];
-}
-
 @end

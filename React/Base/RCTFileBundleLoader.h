@@ -4,6 +4,7 @@
 #import <cxxreact/Bundle.h>
 #import <cxxreact/BundleLoader.h>
 #import <Foundation/Foundation.h>
+#import <React/RCTDefines.h>
 
 NS_ENUM(NSInteger) {
   RCTFileBundleLoaderErrorNoScriptURL = 1,
