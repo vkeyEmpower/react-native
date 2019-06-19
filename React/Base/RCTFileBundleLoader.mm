@@ -98,10 +98,11 @@ namespace facebook {
     }
     
     std::string RCTFileBundleLoader::getBundleURLFromName(std::string bundleName) const {
-      //TODO
-      
-      return "index";
+      return std::string([
+                          [[NSBundle mainBundle]
+                            URLForResource: [NSString stringWithUTF8String:bundleName.c_str()]
+                            withExtension:@"jsbundle"]
+                          .path UTF8String]);
     }
-    
   } // namespace react
 } // namespace facebook

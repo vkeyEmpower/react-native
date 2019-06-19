@@ -3,6 +3,7 @@
 #import "RCTMultipartDataTask.h"
 #import <cxxreact/BasicBundle.h>
 #import "NSDataBigString.h"
+#import "RCTBundleURLProvider.h"
 #import "RCTUtils.h"
 
 
@@ -23,9 +24,7 @@ namespace facebook {
     }
     
     std::string RCTDevBundleLoader::getBundleURLFromName(std::string bundleName) const {
-      //TODO
-      //      return bundlesContainer_->getSourceURLByName(bundleName);
-      return "index";
+      return std::string([[[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil].absoluteString UTF8String]);
     }
     
   } // namespace react
