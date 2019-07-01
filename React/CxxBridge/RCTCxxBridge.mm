@@ -395,16 +395,22 @@ struct RCTInstanceCallback : public InstanceCallback {
     RCTProfileEndAsyncEvent(0, @"native", cookie, @"JavaScript download", @"JS async");
     [performanceLogger markStopForTag:RCTPLScriptDownload];
     
-    // TODO fix performance logs
+    __block NSUInteger bundleSize = 0;
+    [bundlesContainer enumerateKeysAndObjectsUsingBlock:^(id key, RCTDevBundleSource *value, BOOL* stop) {
+      bundleSize += value.length;
+    }];
+    [performanceLogger setValue:bundleSize forTag:RCTPLBundleSize];
     
-//    [performanceLogger setValue:source.length forTag:RCTPLBundleSize];
+    NSDictionary *userInfo = @{
+      // Pass bundle source only if single bundle is preset.
+      RCTBridgeDidDownloadScriptNotificationSourceKey: [bundlesContainer count] == 1
+        ? [bundlesContainer allValues][0]
+        : [NSNull null],
+      RCTBridgeDidDownloadScriptNotificationBundlesKey: bundlesContainer ?: [NSNull null],
+      RCTBridgeDidDownloadScriptNotificationBridgeDescriptionKey: self->_bridgeDescription ?: [NSNull null],
+    };
 
-//    NSDictionary *userInfo = @{
-//                               RCTBridgeDidDownloadScriptNotificationSourceKey: source ?: [NSNull null],
-//                               RCTBridgeDidDownloadScriptNotificationBridgeDescriptionKey: self->_bridgeDescription ?: [NSNull null],
-//                               };
-
-//    [center postNotificationName:RCTBridgeDidDownloadScriptNotification object:self->_parentBridge userInfo:userInfo];
+    [center postNotificationName:RCTBridgeDidDownloadScriptNotification object:self->_parentBridge userInfo:userInfo];
 
     _onSourceLoad(error, bundlesContainer);
   };

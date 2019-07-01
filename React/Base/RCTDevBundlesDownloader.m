@@ -152,8 +152,7 @@ static void attemptAsynchronousLoadOfBundleAtURL(NSURL *scriptURL, RCTDevBundleP
       return;
     }
     
-    //TODO Get name from sourceURL
-    RCTDevBundleSource *source = RCTSourceCreate(scriptURL, data, data.length, @"index");
+    RCTDevBundleSource *source = RCTSourceCreate(scriptURL, data, data.length, getBundleNameFromURL(scriptURL));
     parseHeaders(headers, source);
     
     // Check if there are additional bundles to fetch
@@ -196,6 +195,13 @@ static void downloadAdditionalBundles(NSArray<NSString *> *bundles, NSMutableDic
 
 static NSURL *getBundleURLFromName(NSString *bundleName) {
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:bundleName fallbackResource:nil];
+}
+
+static NSString *getBundleNameFromURL(NSURL *url) {
+  NSString *bundleFilename = url.pathComponents[1];
+  NSString *bundleName = [bundleFilename
+                          substringToIndex:[bundleFilename rangeOfString:@"."].location];
+  return bundleName;
 }
 
 static NSURL *sanitizeURL(NSURL *url)

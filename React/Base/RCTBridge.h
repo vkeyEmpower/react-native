@@ -73,6 +73,12 @@ RCT_EXTERN NSString *const RCTBridgeDidDownloadScriptNotification;
 RCT_EXTERN NSString *const RCTBridgeDidDownloadScriptNotificationSourceKey;
 
 /**
+* Key for the bundles' RCTSource object in the RCTBridgeDidDownloadScriptNotification
+* userInfo dictionary.
+*/
+RCT_EXTERN NSString *const RCTBridgeDidDownloadScriptNotificationBundlesKey;
+
+/**
  * Key for the bridge description (NSString_ in the
  * RCTBridgeDidDownloadScriptNotification userInfo dictionary.
  */

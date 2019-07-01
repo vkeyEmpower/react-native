@@ -31,6 +31,7 @@ NSString *const RCTBridgeWillReloadNotification = @"RCTBridgeWillReloadNotificat
 NSString *const RCTBridgeWillDownloadScriptNotification = @"RCTBridgeWillDownloadScriptNotification";
 NSString *const RCTBridgeDidDownloadScriptNotification = @"RCTBridgeDidDownloadScriptNotification";
 NSString *const RCTBridgeDidDownloadScriptNotificationSourceKey = @"source";
+NSString *const RCTBridgeDidDownloadScriptNotificationBundlesKey = @"bundles";
 NSString *const RCTBridgeDidDownloadScriptNotificationBridgeDescriptionKey = @"bridgeDescription";
 
 static NSMutableArray<Class> *RCTModuleClasses;
