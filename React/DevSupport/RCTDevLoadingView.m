@@ -170,7 +170,7 @@ RCT_EXPORT_METHOD(hide)
 + (void)setEnabled:(BOOL)enabled { }
 - (void)showMessage:(NSString *)message color:(UIColor *)color backgroundColor:(UIColor *)backgroundColor { }
 - (void)showWithURL:(NSURL *)URL { }
-- (void)updateProgress:(RCTLoadingProgress *)progress { }
+- (void)updateProgress:(RCTDevBundleLoadingProgress *)progress { }
 - (void)hide { }
 
 @end

@@ -24,7 +24,9 @@ namespace facebook {
     }
     
     std::string RCTDevBundleLoader::getBundleURLFromName(std::string bundleName) const {
-      return std::string([[[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil].absoluteString UTF8String]);
+      return std::string([[[RCTBundleURLProvider sharedSettings]
+                           jsBundleURLForBundleRoot:[NSString stringWithUTF8String:bundleName.c_str()]
+                           fallbackResource:nil].absoluteString UTF8String]);
     }
     
   } // namespace react

@@ -10,7 +10,7 @@
 
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
-#import <React/RCTJavaScriptLoader.h>
+#import <React/RCTDevBundlesDownloader.h>
 #import <React/RCTLinkingManager.h>
 #import <React/RCTRootView.h>
 
@@ -72,7 +72,7 @@
                  onProgress:(RCTSourceLoadProgressBlock)onProgress
                  onComplete:(RCTSourceLoadBlock)loadCallback
 {
-  [RCTJavaScriptLoader loadBundleAtURL:[self sourceURLForBridge:bridge]
+  [RCTDevBundlesDownloader loadBundleAtURL:[self sourceURLForBridge:bridge]
                             onProgress:onProgress
                             onComplete:loadCallback];
 }

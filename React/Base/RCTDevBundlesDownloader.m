@@ -43,6 +43,22 @@ static RCTDevBundleSource *RCTSourceCreate(NSURL *url, NSData *data, int64_t len
 
 @end
 
+@implementation RCTDevBundleLoadingProgress
+
+- (NSString *)description
+{
+  NSMutableString *desc = [NSMutableString new];
+  [desc appendString:_status ?: @"Loading"];
+  
+  if ([_total integerValue] > 0) {
+    [desc appendFormat:@" %ld%% (%@/%@)", (long)(100 * [_done integerValue] / [_total integerValue]), _done, _total];
+  }
+  [desc appendString:@"\u2026"];
+  return desc;
+}
+
+@end
+
 @implementation RCTDevBundlesDownloader
 
 RCT_NOT_IMPLEMENTED(- (instancetype)init)
@@ -50,8 +66,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 {
   // FETCH INITIAL BUNDLE
   attemptAsynchronousLoadOfBundleAtURL(scriptURL, ^(RCTDevBundleLoadingProgress *progressData) {
-    // TODO i don't know  what to do with progress.
-    // Since we do not know at this  moment if we need to download additional bundles or not
+    // Display progres from initial bundle only
+    onProgress(progressData);
   }, ^(NSError *error, RCTDevBundleSource *initialBundle, NSArray<NSString *> *additionalBundles) {
     if(error) {
       onComplete(error, nil);
@@ -77,8 +93,7 @@ static void attemptAsynchronousLoadOfBundleAtURL(NSURL *scriptURL, RCTDevBundleP
   RCTMultipartDataTask *task = [[RCTMultipartDataTask alloc] initWithURL:scriptURL partHandler:^(NSInteger statusCode, NSDictionary *headers, NSData *data, NSError *error, BOOL done) {
     if (!done) {
       if (onProgress) {
-      // TODO
-      // onProgress(progressEventFromData(data));
+        onProgress(progressEventFromData(data));
       }
       return;
     }
@@ -151,9 +166,8 @@ static void attemptAsynchronousLoadOfBundleAtURL(NSURL *scriptURL, RCTDevBundleP
     onComplete(nil, source, additionalBundles);
   } progressHandler:^(NSDictionary *headers, NSNumber *loaded, NSNumber *total) {
     // Only care about download progress events for the javascript bundle part.
-    if ([headers[@"Content-Type"] isEqualToString:@"application/javascript"]) {
-      // TODO
-      // onProgress(progressEventFromDownloadProgress(loaded, total));
+    if (onProgress && [headers[@"Content-Type"] isEqualToString:@"application/javascript"]) {
+      onProgress(progressEventFromDownloadProgress(loaded, total));
     }
   }];
   
@@ -166,9 +180,7 @@ static void downloadAdditionalBundles(NSArray<NSString *> *bundles, NSMutableDic
   for(NSString * bundleName in bundles) {
     dispatch_group_enter(downloadAdditionalBundles);
     NSURL *bundleURL = getBundleURLFromName(bundleName);
-    attemptAsynchronousLoadOfBundleAtURL(bundleURL, ^(RCTDevBundleLoadingProgress *progressData) {
-      //TODO
-    }, ^(NSError *error, RCTDevBundleSource *bundleSource, NSArray<NSString *> *additionalBundles) {
+    attemptAsynchronousLoadOfBundleAtURL(bundleURL, nil, ^(NSError *error, RCTDevBundleSource *bundleSource, NSArray<NSString *> *additionalBundles) {
       if(error) {
         err = error;
       }
@@ -192,33 +204,31 @@ static NSURL *sanitizeURL(NSURL *url)
   return [RCTConvert NSURL:url.absoluteString];
 }
 
+static RCTDevBundleLoadingProgress *progressEventFromData(NSData *rawData)
+{
+  NSString *text = [[NSString alloc] initWithData:rawData encoding:NSUTF8StringEncoding];
+  id info = RCTJSONParse(text, nil);
+  if (!info || ![info isKindOfClass:[NSDictionary class]]) {
+    return nil;
+  }
 
-//TODO PROGRESS
+  RCTDevBundleLoadingProgress *progress = [RCTDevBundleLoadingProgress new];
+  progress.status = info[@"status"];
+  progress.done = info[@"done"];
+  progress.total = info[@"total"];
+  return progress;
+}
 
-//static RCTLoadingProgress *progressEventFromData(NSData *rawData)
-//{
-//  NSString *text = [[NSString alloc] initWithData:rawData encoding:NSUTF8StringEncoding];
-//  id info = RCTJSONParse(text, nil);
-//  if (!info || ![info isKindOfClass:[NSDictionary class]]) {
-//    return nil;
-//  }
-//
-//  RCTLoadingProgress *progress = [RCTLoadingProgress new];
-//  progress.status = info[@"status"];
-//  progress.done = info[@"done"];
-//  progress.total = info[@"total"];
-//  return progress;
-//}
-//
-//static RCTLoadingProgress *progressEventFromDownloadProgress(NSNumber *total, NSNumber *done)
-//{
-//  RCTLoadingProgress *progress = [RCTLoadingProgress new];
-//  progress.status = @"Downloading JavaScript bundle";
-//  // Progress values are in bytes transform them to kilobytes for smaller numbers.
-//  progress.done = done != nil ? @([done integerValue] / 1024) : nil;
-//  progress.total = total != nil ? @([total integerValue] / 1024) : nil;
-//  return progress;
-//}
+
+static RCTDevBundleLoadingProgress *progressEventFromDownloadProgress(NSNumber *total, NSNumber *done)
+{
+  RCTDevBundleLoadingProgress *progress = [RCTDevBundleLoadingProgress new];
+  progress.status = @"Downloading JavaScript bundle";
+  // Progress values are in bytes transform them to kilobytes for smaller numbers.
+  progress.done = done != nil ? @([done integerValue] / 1024) : nil;
+  progress.total = total != nil ? @([total integerValue] / 1024) : nil;
+  return progress;
+}
 
 static NSDictionary *userInfoForRawResponse(NSString *rawText)
 {
