@@ -15,6 +15,10 @@ static const int32_t JSNoBytecodeFileFormatVersion = -1;
 //TODO FIGURE HOW TO THROW ERRORS HERE
 namespace facebook {
   namespace react {
+
+    RCTFileBundleLoader::RCTFileBundleLoader(RCTPerformanceLogger* performanceLogger) {
+      _performanceLogger = performanceLogger;
+    }
     
     std::unique_ptr<const Bundle> RCTFileBundleLoader::getBundle(std::string bundleURL) const {
       const uint32_t runtimeBCVersion = JSNoBytecodeFileFormatVersion;
@@ -54,7 +58,12 @@ namespace facebook {
             return nil;
           }
           
-          return std::make_unique<IndexedRAMBundle>(bundleURL.c_str(), bundleURL.c_str());
+          [_performanceLogger markStartForTag:RCTPLRAMBundleLoad];
+          auto ramBundle = std::make_unique<IndexedRAMBundle>(bundleURL.c_str(), bundleURL.c_str());
+          std::unique_ptr<const JSBigString> startupScript = ramBundle->getStartupScript();
+          [_performanceLogger markStopForTag:RCTPLRAMBundleLoad];
+          [_performanceLogger setValue:startupScript->size() forTag:RCTPLRAMStartupCodeSize];
+          return ramBundle;
         }
           break;
         case facebook::react::BundleType::DeltaBundle:

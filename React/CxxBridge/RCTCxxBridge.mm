@@ -1353,16 +1353,9 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
      postNotificationName:RCTJavaScriptWillStartExecutingNotification
      object:self->_parentBridge userInfo:@{@"bridge": self}];
 
-    std::unique_ptr<RCTFileBundleLoader> loader = std::make_unique<RCTFileBundleLoader>();
+    std::unique_ptr<RCTFileBundleLoader> loader
+      = std::make_unique<RCTFileBundleLoader>(self->_performanceLogger);
     self->_reactInstance->runApplication(std::string([sourceUrlStr UTF8String]), std::move(loader), !async);
-    //TODO figure out where and when call these permormance logs
-//    if (IndexedRAMBundle::isIndexedRAMBundle(sourceUrlStr.UTF8String)) {
-//      [self->_performanceLogger markStartForTag:RCTPLRAMBundleLoad];
-//      auto ramBundle = std::make_unique<IndexedRAMBundle>(sourceUrlStr.UTF8String, sourceUrlStr.UTF8String);
-//      std::unique_ptr<const JSBigString> scriptStr = ramBundle->getStartupScript();
-//      [self->_performanceLogger markStopForTag:RCTPLRAMBundleLoad];
-//      [self->_performanceLogger setValue:scriptStr->size() forTag:RCTPLRAMStartupCodeSize];
-//    }
   }];
 }
 
