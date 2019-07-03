@@ -35,6 +35,7 @@ NSString *const RCTBridgeWillDownloadScriptNotification = @"RCTBridgeWillDownloa
 NSString *const RCTBridgeDidDownloadScriptNotification = @"RCTBridgeDidDownloadScriptNotification";
 NSString *const RCTBridgeDidInvalidateModulesNotification = @"RCTBridgeDidInvalidateModulesNotification";
 NSString *const RCTBridgeDidDownloadScriptNotificationSourceKey = @"source";
+NSString *const RCTBridgeDidDownloadScriptNotificationBundlesKey = @"bundles";
 NSString *const RCTBridgeDidDownloadScriptNotificationBridgeDescriptionKey = @"bridgeDescription";
 
 static NSMutableArray<Class> *RCTModuleClasses;
@@ -400,11 +401,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (void)enqueueCallback:(NSNumber *)cbID args:(NSArray *)args
 {
   [self.batchedBridge enqueueCallback:cbID args:args];
-}
-
-- (void)registerSegmentWithId:(NSUInteger)segmentId path:(NSString *)path
-{
-  [self.batchedBridge registerSegmentWithId:segmentId path:path];
 }
 
 @end
