@@ -13,6 +13,7 @@
 #import "RCTDefines.h"
 #import "RCTModalHostViewController.h"
 #import "RCTUtils.h"
+#import <React/RCTDevBundlesDownloader.h>
 
 #if RCT_DEV | RCT_ENABLE_LOADING_VIEW
 
@@ -149,7 +150,7 @@ RCT_EXPORT_METHOD(hide)
     backgroundColor:backgroundColor];
 }
 
-- (void)updateProgress:(RCTLoadingProgress *)progress
+- (void)updateProgress:(RCTDevBundleLoadingProgress *)progress
 {
   if (!progress) {
     return;
@@ -169,7 +170,7 @@ RCT_EXPORT_METHOD(hide)
 + (void)setEnabled:(BOOL)enabled { }
 - (void)showMessage:(NSString *)message color:(UIColor *)color backgroundColor:(UIColor *)backgroundColor { }
 - (void)showWithURL:(NSURL *)URL { }
-- (void)updateProgress:(RCTLoadingProgress *)progress { }
+- (void)updateProgress:(RCTDevBundleLoadingProgress *)progress { }
 - (void)hide { }
 
 @end
