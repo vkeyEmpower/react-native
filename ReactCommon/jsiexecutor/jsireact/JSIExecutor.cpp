@@ -168,23 +168,23 @@ void JSIExecutor::setBundleRegistry(std::unique_ptr<RAMBundleRegistry> r) {
   bundleRegistry_ = std::move(r);
 }
 
-void JSIExecutor::registerBundle(
-    uint32_t bundleId,
-    const std::string &bundlePath) {
+void JSIExecutor::intializeBundle(JSBigString startupScript, sourceURL) {
+    // uint32_t bundleId,
+    // const std::string &bundlePath) {
   const auto tag = folly::to<std::string>(bundleId);
   ReactMarker::logTaggedMarker(
       ReactMarker::REGISTER_JS_SEGMENT_START, tag.c_str());
-  if (bundleRegistry_) {
-    bundleRegistry_->registerBundle(bundleId, bundlePath);
-  } else {
-    auto script = JSBigFileString::fromPath(bundlePath);
-    if (script->size() == 0) {
-      throw std::invalid_argument(
-          "Empty bundle registered with ID " + tag + " from " + bundlePath);
-    }
+  // if (bundleRegistry_) {
+  //   bundleRegistry_->registerBundle(bundleId, bundlePath);
+  // } else {
+  //   auto script = JSBigFileString::fromPath(bundlePath);
+  //   if (script->size() == 0) {
+  //     throw std::invalid_argument(
+  //         "Empty bundle registered with ID " + tag + " from " + bundlePath);
+  //   }
     runtime_->evaluateJavaScript(
-        std::make_unique<BigStringBuffer>(std::move(script)),
-        JSExecutor::getSyntheticBundlePath(bundleId, bundlePath));
+        std::make_unique<BigStringBuffer>(std::move(startupScript)),
+        JSExecutor::getSyntheticBundlePath(bundleId, sourceURL));
   }
   ReactMarker::logTaggedMarker(
       ReactMarker::REGISTER_JS_SEGMENT_STOP, tag.c_str());

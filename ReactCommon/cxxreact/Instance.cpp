@@ -57,6 +57,16 @@ void Instance::initializeBridge(
   CHECK(nativeToJsBridge_);
 }
 
+void Instance::loadBunde(usize bundleId, Bundle bundle, bool loadSynchronously) {
+  // check for bundle type
+  //  if bundle type is RAM bundle
+  //    store it in RAMBundleRegistry
+  //    get startup script from RAMBundleRegistry with bundleId
+  //  else
+  //    get startup script from bundle
+  // call loadApplication or loadApplicationSync
+}
+
 void Instance::loadApplication(
     std::unique_ptr<RAMBundleRegistry> bundleRegistry,
     std::unique_ptr<const JSBigString> string,
@@ -79,6 +89,7 @@ void Instance::loadApplicationSync(
       std::move(bundleRegistry), std::move(string), std::move(sourceURL));
 }
 
+// Rename to something more meaningful
 void Instance::setSourceURL(std::string sourceURL) {
   callback_->incrementPendingJSCalls();
   SystraceSection s("Instance::setSourceURL", "sourceURL", sourceURL);
@@ -89,15 +100,13 @@ void Instance::setSourceURL(std::string sourceURL) {
 void Instance::loadScriptFromString(
     std::unique_ptr<const JSBigString> string,
     std::string sourceURL,
-    bool loadSynchronously) {
+    bool loadSynchronously, usize bundleId = 0) {
   SystraceSection s("Instance::loadScriptFromString", "sourceURL", sourceURL);
-  if (loadSynchronously) {
-    loadApplicationSync(nullptr, std::move(string), std::move(sourceURL));
-  } else {
-    loadApplication(nullptr, std::move(string), std::move(sourceURL));
-  }
+  // Bundle bundle = Bundle::fromString(string, sourceURL) // can be ram bundle
+  // call loadBundle(bundleId, bundle, loadSynchronously)
 }
 
+// Move Bundle logic
 bool Instance::isIndexedRAMBundle(const char *sourcePath) {
   std::ifstream bundle_stream(sourcePath, std::ios_base::in);
   BundleHeader header;
@@ -110,6 +119,7 @@ bool Instance::isIndexedRAMBundle(const char *sourcePath) {
   return parseTypeFromHeader(header) == ScriptTag::RAMBundle;
 }
 
+// Move Bundle logic
 bool Instance::isIndexedRAMBundle(std::unique_ptr<const JSBigString> *script) {
   BundleHeader header;
   strncpy(
@@ -120,46 +130,22 @@ bool Instance::isIndexedRAMBundle(std::unique_ptr<const JSBigString> *script) {
   return parseTypeFromHeader(header) == ScriptTag::RAMBundle;
 }
 
-void Instance::loadRAMBundleFromString(
-    std::unique_ptr<const JSBigString> script,
-    const std::string &sourceURL) {
-  auto bundle = std::make_unique<JSIndexedRAMBundle>(std::move(script));
-  auto startupScript = bundle->getStartupCode();
-  auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
-  loadRAMBundle(std::move(registry), std::move(startupScript), sourceURL, true);
-}
+// should be done via loadScriptFromString
+// void Instance::loadRAMBundleFromString(
+//     std::unique_ptr<const JSBigString> script,
+//     const std::string &sourceURL) {
+//   auto bundle = std::make_unique<JSIndexedRAMBundle>(std::move(script));
+//   auto startupScript = bundle->getStartupCode();
+//   auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
+//   loadRAMBundle(std::move(registry), std::move(startupScript), sourceURL, true);
+// }
 
-void Instance::loadRAMBundleFromFile(
+void Instance::loadScriptFromFile(
     const std::string &sourcePath,
     const std::string &sourceURL,
     bool loadSynchronously) {
-  auto bundle = std::make_unique<JSIndexedRAMBundle>(sourcePath.c_str());
-  auto startupScript = bundle->getStartupCode();
-  auto registry = RAMBundleRegistry::multipleBundlesRegistry(
-      std::move(bundle), JSIndexedRAMBundle::buildFactory());
-  loadRAMBundle(
-      std::move(registry),
-      std::move(startupScript),
-      sourceURL,
-      loadSynchronously);
-}
-
-void Instance::loadRAMBundle(
-    std::unique_ptr<RAMBundleRegistry> bundleRegistry,
-    std::unique_ptr<const JSBigString> startupScript,
-    std::string startupScriptSourceURL,
-    bool loadSynchronously) {
-  if (loadSynchronously) {
-    loadApplicationSync(
-        std::move(bundleRegistry),
-        std::move(startupScript),
-        std::move(startupScriptSourceURL));
-  } else {
-    loadApplication(
-        std::move(bundleRegistry),
-        std::move(startupScript),
-        std::move(startupScriptSourceURL));
-  }
+  // Bundle bundle = Bundle::fromFile(sourcePath, sourceURL);
+  // loadBundle(bundleId, bundle, loadSynchronously);
 }
 
 void Instance::setGlobalVariable(

@@ -216,35 +216,42 @@ void CatalystInstanceImpl::jniLoadScriptFromAssets(
 
   auto manager = extractAssetManager(assetManager);
   auto script = loadScriptFromAssets(manager, sourceURL);
-  if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
-    auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
-    auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
-    instance_->loadRAMBundle(
-        std::move(registry), std::move(script), sourceURL, loadSynchronously);
-    return;
-  } else if (Instance::isIndexedRAMBundle(&script)) {
-    instance_->loadRAMBundleFromString(std::move(script), sourceURL);
-  } else {
-    instance_->loadScriptFromString(
-        std::move(script), sourceURL, loadSynchronously);
-  }
+
+  // Bundle bundle = android::Bundle::fromAssets(script, manager, sourceURL);
+  // instance_->loadBundle(std::move(bundle));
+
+  // if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
+  //   auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
+  //   auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
+  //   instance_->loadRAMBundle(
+  //       std::move(registry), std::move(script), sourceURL, loadSynchronously);
+  //   return;
+  // } else if (Instance::isIndexedRAMBundle(&script)) {
+  //   instance_->loadRAMBundleFromString(std::move(script), sourceURL);
+  // } else {
+  //   instance_->loadScriptFromString(
+  //       std::move(script), sourceURL, loadSynchronously);
+  // }
 }
 
 void CatalystInstanceImpl::jniLoadScriptFromFile(
     const std::string &fileName,
     const std::string &sourceURL,
     bool loadSynchronously) {
-  if (Instance::isIndexedRAMBundle(fileName.c_str())) {
-    instance_->loadRAMBundleFromFile(fileName, sourceURL, loadSynchronously);
-  } else {
-    std::unique_ptr<const JSBigFileString> script;
-    RecoverableError::runRethrowingAsRecoverable<std::system_error>(
-        [&fileName, &script]() {
-          script = JSBigFileString::fromPath(fileName);
-        });
-    instance_->loadScriptFromString(
-        std::move(script), sourceURL, loadSynchronously);
-  }
+  // Bundle bundle = Bundle::fromFile(filename, sourceURL);
+  // instance_->loadBundle(std::move(bundle));
+
+  // if (Instance::isIndexedRAMBundle(fileName.c_str())) {
+  //   instance_->loadRAMBundleFromFile(fileName, sourceURL, loadSynchronously);
+  // } else {
+  //   std::unique_ptr<const JSBigFileString> script;
+  //   RecoverableError::runRethrowingAsRecoverable<std::system_error>(
+  //       [&fileName, &script]() {
+  //         script = JSBigFileString::fromPath(fileName);
+  //       });
+  //   instance_->loadScriptFromString(
+  //       std::move(script), sourceURL, loadSynchronously);
+  // }
 }
 
 void CatalystInstanceImpl::jniCallJSFunction(
