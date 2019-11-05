@@ -136,6 +136,9 @@ void JSIExecutor::loadBundle(
     std::unique_ptr<const JSBigString> script,
     std::string sourceURL) {
   SystraceSection s("JSIExecutor::loadBundle");
+
+  // TODO: check for and use precompiled HBC
+
   bool hasLogger(ReactMarker::logTaggedMarker);
   std::string scriptName = simpleBasename(sourceURL);
   if (hasLogger) {
