@@ -15,6 +15,8 @@
 #include "RecoverableError.h"
 #include "SystraceSection.h"
 
+#include "StringBundle.h"
+
 #include <cxxreact/JSIndexedRAMBundle.h>
 #include <folly/Memory.h>
 #include <folly/MoveWrapper.h>
@@ -90,10 +92,11 @@ void Instance::loadScriptFromString(std::unique_ptr<const JSBigString> string,
                                     bool loadSynchronously) {
   SystraceSection s("Instance::loadScriptFromString", "sourceURL",
                     sourceURL);
+  std::unique_ptr<StringBundle> bundle = std::make_unique<StringBundle>(std::move(string), std::move(sourceURL));
   if (loadSynchronously) {
-    loadBundleSync(nullptr, std::move(string), std::move(sourceURL));
+    loadBundleSync(nullptr, bundle->getScript(), bundle->getSourceURL());
   } else {
-    loadBundle(nullptr, std::move(string), std::move(sourceURL));
+    loadBundle(nullptr, bundle->getScript(), bundle->getSourceURL());
   }
 }
 
