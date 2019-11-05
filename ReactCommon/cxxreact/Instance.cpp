@@ -56,23 +56,23 @@ void Instance::initializeBridge(
   CHECK(nativeToJsBridge_);
 }
 
-void Instance::loadApplication(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+void Instance::loadBundle(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
                                std::unique_ptr<const JSBigString> string,
                                std::string sourceURL) {
   callback_->incrementPendingJSCalls();
-  SystraceSection s("Instance::loadApplication", "sourceURL",
+  SystraceSection s("Instance::loadBundle", "sourceURL",
                     sourceURL);
   nativeToJsBridge_->loadBundle(std::move(bundleRegistry), std::move(string),
                                      std::move(sourceURL));
 }
 
-void Instance::loadApplicationSync(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+void Instance::loadBundleSync(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
                                    std::unique_ptr<const JSBigString> string,
                                    std::string sourceURL) {
   std::unique_lock<std::mutex> lock(m_syncMutex);
   m_syncCV.wait(lock, [this] { return m_syncReady; });
 
-  SystraceSection s("Instance::loadApplicationSync", "sourceURL",
+  SystraceSection s("Instance::loadBundleSync", "sourceURL",
                     sourceURL);
   nativeToJsBridge_->loadBundleSync(std::move(bundleRegistry), std::move(string),
                                          std::move(sourceURL));
@@ -91,9 +91,9 @@ void Instance::loadScriptFromString(std::unique_ptr<const JSBigString> string,
   SystraceSection s("Instance::loadScriptFromString", "sourceURL",
                     sourceURL);
   if (loadSynchronously) {
-    loadApplicationSync(nullptr, std::move(string), std::move(sourceURL));
+    loadBundleSync(nullptr, std::move(string), std::move(sourceURL));
   } else {
-    loadApplication(nullptr, std::move(string), std::move(sourceURL));
+    loadBundle(nullptr, std::move(string), std::move(sourceURL));
   }
 }
 
@@ -145,10 +145,10 @@ void Instance::loadRAMBundle(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
                              std::string startupScriptSourceURL,
                              bool loadSynchronously) {
   if (loadSynchronously) {
-    loadApplicationSync(std::move(bundleRegistry), std::move(startupScript),
+    loadBundleSync(std::move(bundleRegistry), std::move(startupScript),
                         std::move(startupScriptSourceURL));
   } else {
-    loadApplication(std::move(bundleRegistry), std::move(startupScript),
+    loadBundle(std::move(bundleRegistry), std::move(startupScript),
                     std::move(startupScriptSourceURL));
   }
 }

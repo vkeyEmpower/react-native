@@ -79,10 +79,10 @@ public:
 
 private:
   void callNativeModules(folly::dynamic &&calls, bool isEndOfBatch);
-  void loadApplication(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+  void loadBundle(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
                        std::unique_ptr<const JSBigString> startupScript,
                        std::string startupScriptSourceURL);
-  void loadApplicationSync(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+  void loadBundleSync(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
                            std::unique_ptr<const JSBigString> startupScript,
                            std::string startupScriptSourceURL);
 
