@@ -42,6 +42,8 @@ public:
                         std::shared_ptr<MessageQueueThread> jsQueue,
                         std::shared_ptr<ModuleRegistry> moduleRegistry);
 
+  void initializeRuntime();
+
   void setSourceURL(std::string sourceURL);
 
   void loadScriptFromString(std::unique_ptr<const JSBigString> string,
