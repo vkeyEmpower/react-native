@@ -12,7 +12,7 @@ class StringBundle : public Bundle {
     StringBundle(std::unique_ptr<const JSBigString> script, std::string sourceURL);
     
     std::string getSourceURL() const override;
-    std::unique_ptr<const JSBigString> getScript() const;
+    std::unique_ptr<const JSBigString> getScript();
     ScriptTag getBundleType() const override;
   private:
     std::string sourceURL_;
