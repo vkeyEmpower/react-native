@@ -108,19 +108,18 @@ void NativeToJsBridge::initializeRuntime() {
 }
 
 void NativeToJsBridge::loadBundle(
-    std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+    std::shared_ptr<RAMBundleRegistry> bundleRegistry,
     std::unique_ptr<const JSBigString> startupScript,
     std::string startupScriptSourceURL) {
 
   runOnExecutorQueue(
       [this,
-       bundleRegistryWrap=folly::makeMoveWrapper(std::move(bundleRegistry)),
+       bundleRegistry,
        startupScript=folly::makeMoveWrapper(std::move(startupScript)),
        startupScriptSourceURL=std::move(startupScriptSourceURL)]
         (JSExecutor* executor) mutable {
-    auto bundleRegistry = bundleRegistryWrap.move();
     if (bundleRegistry) {
-      executor->setBundleRegistry(std::move(bundleRegistry));
+      executor->setBundleRegistry(bundleRegistry);
     }
     try {
       executor->loadBundle(std::move(*startupScript),
@@ -133,11 +132,11 @@ void NativeToJsBridge::loadBundle(
 }
 
 void NativeToJsBridge::loadBundleSync(
-    std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+    std::shared_ptr<RAMBundleRegistry> bundleRegistry,
     std::unique_ptr<const JSBigString> startupScript,
     std::string startupScriptSourceURL) {
   if (bundleRegistry) {
-    m_executor->setBundleRegistry(std::move(bundleRegistry));
+    m_executor->setBundleRegistry(bundleRegistry);
   }
   try {
     m_executor->loadBundle(std::move(startupScript),

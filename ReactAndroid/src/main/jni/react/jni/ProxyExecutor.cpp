@@ -89,7 +89,7 @@ void ProxyExecutor::loadBundle(
   // we launch the application.
 }
 
-void ProxyExecutor::setBundleRegistry(std::unique_ptr<RAMBundleRegistry>) {
+void ProxyExecutor::setBundleRegistry(std::shared_ptr<RAMBundleRegistry>) {
   jni::throwNewJavaException(
     "java/lang/UnsupportedOperationException",
     "Loading application RAM bundles is not supported for proxy executors");

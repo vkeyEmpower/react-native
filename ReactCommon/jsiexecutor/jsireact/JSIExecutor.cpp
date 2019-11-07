@@ -154,7 +154,7 @@ void JSIExecutor::loadBundle(
   }
 }
 
-void JSIExecutor::setBundleRegistry(std::unique_ptr<RAMBundleRegistry> r) {
+void JSIExecutor::setBundleRegistry(std::shared_ptr<RAMBundleRegistry> r) {
   if (!bundleRegistry_) {
     runtime_->global().setProperty(
         *runtime_,
@@ -169,7 +169,7 @@ void JSIExecutor::setBundleRegistry(std::unique_ptr<RAMBundleRegistry> r) {
                 const facebook::jsi::Value *args,
                 size_t count) { return nativeRequire(args, count); }));
   }
-  bundleRegistry_ = std::move(r);
+  bundleRegistry_ = r;
 }
 
 void JSIExecutor::registerBundle(

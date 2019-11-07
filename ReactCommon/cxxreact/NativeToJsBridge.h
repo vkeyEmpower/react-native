@@ -68,11 +68,11 @@ public:
    * Otherwise, the script is assumed to include all the modules.
    */
   void loadBundle(
-    std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+    std::shared_ptr<RAMBundleRegistry> bundleRegistry,
     std::unique_ptr<const JSBigString> startupCode,
     std::string sourceURL);
   void loadBundleSync(
-    std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+    std::shared_ptr<RAMBundleRegistry> bundleRegistry,
     std::unique_ptr<const JSBigString> startupCode,
     std::string sourceURL);
 

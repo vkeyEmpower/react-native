@@ -65,7 +65,7 @@ public:
   /**
    * Add an application "RAM" bundle registry
    */
-  virtual void setBundleRegistry(std::unique_ptr<RAMBundleRegistry> bundleRegistry) = 0;
+  virtual void setBundleRegistry(std::shared_ptr<RAMBundleRegistry> bundleRegistry) = 0;
 
   /**
    * Register a file path for an additional "RAM" bundle
