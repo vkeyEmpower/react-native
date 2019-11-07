@@ -42,6 +42,8 @@ public:
                         std::shared_ptr<MessageQueueThread> jsQueue,
                         std::shared_ptr<ModuleRegistry> moduleRegistry);
 
+  void initializeRuntime();
+
   void setSourceURL(std::string sourceURL);
 
   void loadScriptFromString(std::unique_ptr<const JSBigString> string,
@@ -52,7 +54,7 @@ public:
   void loadRAMBundleFromFile(const std::string& sourcePath,
                              const std::string& sourceURL,
                              bool loadSynchronously);
-  void loadRAMBundle(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+  void loadRAMBundle(std::unique_ptr<JSModulesUnbundle> bundle,
                      std::unique_ptr<const JSBigString> startupScript,
                      std::string startupScriptSourceURL, bool loadSynchronously);
   bool supportsProfiling();
@@ -77,13 +79,10 @@ public:
 
 private:
   void callNativeModules(folly::dynamic &&calls, bool isEndOfBatch);
-  void loadApplication(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
-                       std::unique_ptr<const JSBigString> startupScript,
+  void loadBundle(std::unique_ptr<const JSBigString> startupScript,
                        std::string startupScriptSourceURL);
-  void loadApplicationSync(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
-                           std::unique_ptr<const JSBigString> startupScript,
+  void loadBundleSync(std::unique_ptr<const JSBigString> startupScript,
                            std::string startupScriptSourceURL);
-
   std::shared_ptr<InstanceCallback> callback_;
   std::unique_ptr<NativeToJsBridge> nativeToJsBridge_;
   std::shared_ptr<ModuleRegistry> moduleRegistry_;

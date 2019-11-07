@@ -100,23 +100,24 @@ NativeToJsBridge::~NativeToJsBridge() {
     "NativeToJsBridge::destroy() must be called before deallocating the NativeToJsBridge!";
 }
 
-void NativeToJsBridge::loadApplication(
-    std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+void NativeToJsBridge::initializeRuntime() {
+  runOnExecutorQueue([]
+    (JSExecutor* executor) mutable {
+      executor->initializeRuntime();
+    });
+}
+
+void NativeToJsBridge::loadBundle(
     std::unique_ptr<const JSBigString> startupScript,
     std::string startupScriptSourceURL) {
 
   runOnExecutorQueue(
       [this,
-       bundleRegistryWrap=folly::makeMoveWrapper(std::move(bundleRegistry)),
        startupScript=folly::makeMoveWrapper(std::move(startupScript)),
        startupScriptSourceURL=std::move(startupScriptSourceURL)]
         (JSExecutor* executor) mutable {
-    auto bundleRegistry = bundleRegistryWrap.move();
-    if (bundleRegistry) {
-      executor->setBundleRegistry(std::move(bundleRegistry));
-    }
     try {
-      executor->loadApplicationScript(std::move(*startupScript),
+      executor->loadBundle(std::move(*startupScript),
                                       std::move(startupScriptSourceURL));
     } catch (...) {
       m_applicationScriptHasFailure = true;
@@ -125,15 +126,11 @@ void NativeToJsBridge::loadApplication(
   });
 }
 
-void NativeToJsBridge::loadApplicationSync(
-    std::unique_ptr<RAMBundleRegistry> bundleRegistry,
+void NativeToJsBridge::loadBundleSync(
     std::unique_ptr<const JSBigString> startupScript,
     std::string startupScriptSourceURL) {
-  if (bundleRegistry) {
-    m_executor->setBundleRegistry(std::move(bundleRegistry));
-  }
   try {
-    m_executor->loadApplicationScript(std::move(startupScript),
+    m_executor->loadBundle(std::move(startupScript),
                                           std::move(startupScriptSourceURL));
   } catch (...) {
     m_applicationScriptHasFailure = true;
@@ -206,10 +203,8 @@ void NativeToJsBridge::invokeCallback(double callbackId, folly::dynamic&& argume
     });
 }
 
-void NativeToJsBridge::registerBundle(uint32_t bundleId, const std::string& bundlePath) {
-  runOnExecutorQueue([bundleId, bundlePath] (JSExecutor* executor) {
-    executor->registerBundle(bundleId, bundlePath);
-  });
+void NativeToJsBridge::registerBundle(uint32_t bundleId, std::unique_ptr<JSModulesUnbundle> bundle) {
+  m_executor->registerBundle(bundleId, std::move(bundle));
 }
 
 void NativeToJsBridge::setGlobalVariable(std::string propName,
