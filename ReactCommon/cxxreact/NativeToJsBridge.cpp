@@ -204,7 +204,10 @@ void NativeToJsBridge::invokeCallback(double callbackId, folly::dynamic&& argume
 }
 
 void NativeToJsBridge::registerBundle(uint32_t bundleId, std::unique_ptr<JSModulesUnbundle> bundle) {
-  m_executor->registerBundle(bundleId, std::move(bundle));
+  runOnExecutorQueue([bundleId, bundle=folly::makeMoveWrapper(std::move(bundle))]
+    (JSExecutor* executor) mutable {
+      executor->registerBundle(bundleId, bundle.move());
+    });
 }
 
 void NativeToJsBridge::setGlobalVariable(std::string propName,
