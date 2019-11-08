@@ -192,9 +192,8 @@ void CatalystInstanceImpl::jniLoadScriptFromAssets(
   auto script = loadScriptFromAssets(manager, sourceURL);
   if (JniJSModulesUnbundle::isUnbundle(manager, sourceURL)) {
     auto bundle = JniJSModulesUnbundle::fromEntryFile(manager, sourceURL);
-    auto registry = RAMBundleRegistry::singleBundleRegistry(std::move(bundle));
     instance_->loadRAMBundle(
-      std::move(registry),
+      std::move(bundle),
       std::move(script),
       sourceURL,
       loadSynchronously);
@@ -226,12 +225,12 @@ void CatalystInstanceImpl::jniLoadScriptFromDeltaBundle(
     jni::alias_ref<NativeDeltaClient::jhybridobject> jDeltaClient,
     bool loadSynchronously) {
 
-  auto deltaClient = jDeltaClient->cthis()->getDeltaClient();
-  auto registry = RAMBundleRegistry::singleBundleRegistry(
-    folly::make_unique<JSDeltaBundleClientRAMBundle>(deltaClient));
+  // auto deltaClient = jDeltaClient->cthis()->getDeltaClient();
+  // auto registry = RAMBundleRegistry::singleBundleRegistry(
+  //   folly::make_unique<JSDeltaBundleClientRAMBundle>(deltaClient));
 
-  instance_->loadRAMBundle(
-    std::move(registry), deltaClient->getStartupCode(), sourceURL, loadSynchronously);
+  // instance_->loadRAMBundle(
+  //   std::move(registry), deltaClient->getStartupCode(), sourceURL, loadSynchronously);
 }
 
 void CatalystInstanceImpl::jniCallJSFunction(std::string module, std::string method, NativeArray* arguments) {
