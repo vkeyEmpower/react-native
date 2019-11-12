@@ -30,7 +30,7 @@ public interface JSBundleLoaderDelegate {
    * @param sourceURL
    * @param loadSynchronously
    */
-  void loadScriptFromFile(String fileName, String sourceURL, int bindleId, boolean loadSynchronously);
+  void loadScriptFromFile(String fileName, String sourceURL, int bundleId, boolean loadSynchronously);
 
   /**
    * Load a delta bundle from Metro. See {@link JSBundleLoader#createDeltaFromNetworkLoader(String,
