@@ -1357,13 +1357,14 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
     NSData *sourceCode = source.data;
     __strong RCTCxxBridge *strongSelf = weakSelf;
     if (strongSelf->_reactInstance) {
-      [strongSelf executeApplicationScript:sourceCode url:pathURL async:NO];
+      [strongSelf executeApplicationScript:sourceCode url:pathURL bundleId:segmentId async:NO];
     }
     dispatch_group_leave(group);
         
     }];
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    NSLog(@"completed loading");
 }
 
 #pragma mark - Payload Processing
