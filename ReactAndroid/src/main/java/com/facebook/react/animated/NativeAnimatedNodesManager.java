@@ -291,6 +291,15 @@ import javax.annotation.Nullable;
     mUpdatedNodes.put(childNodeTag, childNode);
   }
 
+  public void getValue(int tag, Callback callback) {
+    AnimatedNode node = mAnimatedNodes.get(tag);
+    if (node == null || !(node instanceof ValueAnimatedNode)) {
+      throw new JSApplicationIllegalArgumentException(
+        "Animated node with tag " + tag + " does not exists or is not a 'value' node");
+    }
+    callback.invoke(((ValueAnimatedNode) node).getValue());
+  }
+
   public void connectAnimatedNodeToView(int animatedNodeTag, int viewTag) {
     AnimatedNode node = mAnimatedNodes.get(animatedNodeTag);
     if (node == null) {

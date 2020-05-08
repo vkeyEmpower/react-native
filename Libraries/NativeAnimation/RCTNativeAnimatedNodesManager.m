@@ -218,6 +218,17 @@
   [valueNode extractOffset];
 }
 
+- (void)getValue:(NSNumber *)nodeTag saveCallback:(RCTResponseSenderBlock)saveCallback
+{
+     RCTAnimatedNode *node = _animationNodes[nodeTag];
+     if (![node isKindOfClass:[RCTValueAnimatedNode class]]) {
+       RCTLogError(@"Not a value node.");
+       return;
+     }
+    RCTValueAnimatedNode *valueNode = (RCTValueAnimatedNode *)node;;
+    saveCallback(@[@(valueNode.value)]);
+}
+
 #pragma mark -- Drivers
 
 - (void)startAnimatingNode:(nonnull NSNumber *)animationId
