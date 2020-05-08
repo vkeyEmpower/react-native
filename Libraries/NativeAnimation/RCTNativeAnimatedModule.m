@@ -193,6 +193,14 @@ RCT_EXPORT_METHOD(removeAnimatedEventFromView:(nonnull NSNumber *)viewTag
   }];
 }
 
+RCT_EXPORT_METHOD(getValue:(nonnull NSNumber *)nodeTag 
+              saveCallback:(RCTResponseSenderBlock)saveCallback)
+{
+  [self addOperationBlock:^(RCTNativeAnimatedNodesManager *nodesManager) {
+      [nodesManager getValue:nodeTag saveCallback:saveCallback];
+  }];
+}
+
 #pragma mark -- Batch handling
 
 - (void)addOperationBlock:(AnimatedOperation)operation

@@ -35,6 +35,17 @@ let nativeEventEmitter;
  * the native module methods
  */
 const API = {
+  getValue: function(
+    tag: number,
+    saveValueCallback: (value: number) => void,
+  ): void {
+    invariant(NativeAnimatedModule, 'Native animated module is not available');
+    console.log(
+      'NativeAnimatedModule.getValue, ',
+      NativeAnimatedModule.getValue,
+    );
+    // NativeAnimatedModule.getValue(tag, saveValueCallback);
+  },
   createAnimatedNode: function(tag: ?number, config: Object): void {
     assertNativeAnimatedModule();
     NativeAnimatedModule.createAnimatedNode(tag, config);
