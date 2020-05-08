@@ -331,6 +331,8 @@ namespace JS {
                     animatedNodeTag:(NSNumber *)animatedNodeTag;
 - (void)addListener:(NSString *)eventName;
 - (void)removeListeners:(double)count;
+- (void)getValue:(NSNumber *)nodeTag
+    saveCallback:(RCTResponseSenderBlock)saveCallback;
 
 @end
 namespace facebook {
