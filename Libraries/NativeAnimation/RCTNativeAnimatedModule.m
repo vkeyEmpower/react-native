@@ -189,7 +189,6 @@ RCT_EXPORT_METHOD(getValue:(nonnull NSNumber *)nodeTag saveCallback:(RCTResponse
   }];
 }
 
-
 #pragma mark -- Batch handling
 
 - (void)addOperationBlock:(AnimatedOperation)operation

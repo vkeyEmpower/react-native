@@ -218,7 +218,7 @@
   [valueNode extractOffset];
 }
 
-- (void)getValue:(NSNumber *)nodeTag saveCallback:(RCTResponseSenderBlock)saveCallback
+- (void)getValue:(nonnull NSNumber *)nodeTag saveCallback:(RCTResponseSenderBlock)saveCallback
 {
      RCTAnimatedNode *node = _animationNodes[nodeTag];
      if (![node isKindOfClass:[RCTValueAnimatedNode class]]) {
