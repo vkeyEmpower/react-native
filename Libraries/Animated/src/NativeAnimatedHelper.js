@@ -40,11 +40,9 @@ const API = {
     saveValueCallback: (value: number) => void,
   ): void {
     invariant(NativeAnimatedModule, 'Native animated module is not available');
-    console.log(
-      'NativeAnimatedModule.getValue, ',
-      NativeAnimatedModule.getValue,
-    );
-    // NativeAnimatedModule.getValue(tag, saveValueCallback);
+    if (NativeAnimatedModule.getValue) {
+      NativeAnimatedModule.getValue(tag, saveValueCallback);
+    }
   },
   createAnimatedNode: function(tag: ?number, config: Object): void {
     assertNativeAnimatedModule();
