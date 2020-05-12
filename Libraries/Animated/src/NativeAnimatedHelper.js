@@ -39,7 +39,9 @@ const API = {
     saveValueCallback: (value: number) => void,
   ): void {
     invariant(NativeAnimatedModule, 'Native animated module is not available');
-    NativeAnimatedModule.getValue(tag, saveValueCallback);
+    if (NativeAnimatedModule.getValue) {
+      NativeAnimatedModule.getValue(tag, saveValueCallback);
+    }
   },
   createAnimatedNode: function(tag: ?number, config: Object): void {
     assertNativeAnimatedModule();
@@ -207,7 +209,9 @@ function validateTransform(configs: Array<Object>): void {
   configs.forEach(config => {
     if (!TRANSFORM_WHITELIST.hasOwnProperty(config.property)) {
       throw new Error(
-        `Property '${config.property}' is not supported by native animated module`,
+        `Property '${
+          config.property
+        }' is not supported by native animated module`,
       );
     }
   });
