@@ -155,7 +155,8 @@ public class WebsocketJavaScriptExecutor implements JavaJSExecutor {
   @Override
   public void loadBundle(String sourceURL) throws JavaJSExecutor.ProxyExecutorException {
     JSExecutorCallbackFuture callback = new JSExecutorCallbackFuture();
-    Assertions.assertNotNull(mWebSocketClient).loadBundle(sourceURL, mInjectedObjects, callback);
+    Assertions.assertNotNull(mWebSocketClient)
+        .loadBundle(sourceURL, mInjectedObjects, callback);
     try {
       callback.get();
     } catch (Throwable cause) {

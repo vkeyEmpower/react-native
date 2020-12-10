@@ -471,7 +471,7 @@ struct RCTInstanceCallback : public InstanceCallback {
   dispatch_group_notify(prepareBridge, dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
     RCTCxxBridge *strongSelf = weakSelf;
     if (sourceCode && strongSelf.loading) {
-      [strongSelf executeSourceCode:sourceCode sync:NO];
+      [strongSelf executeSourceCode:sourceCode bundleId:0 sync:NO];
     }
   });
   RCT_PROFILE_END_EVENT(RCTProfileTagAlways, @"");
@@ -993,7 +993,7 @@ struct RCTInstanceCallback : public InstanceCallback {
   [_displayLink registerModuleForFrameUpdates:module withModuleData:moduleData];
 }
 
-- (void)executeSourceCode:(NSData *)sourceCode sync:(BOOL)sync
+- (void)executeSourceCode:(NSData *)sourceCode bundleId:(int)bundleId sync:(BOOL)sync
 {
   // This will get called from whatever thread was actually executing JS.
   dispatch_block_t completion = ^{
@@ -1018,10 +1018,10 @@ struct RCTInstanceCallback : public InstanceCallback {
   };
 
   if (sync) {
-    [self executeApplicationScriptSync:sourceCode url:self.bundleURL];
+    [self executeApplicationScriptSync:sourceCode url:self.bundleURL bundleId:bundleId];
     completion();
   } else {
-    [self enqueueApplicationScript:sourceCode url:self.bundleURL onComplete:completion];
+    [self enqueueApplicationScript:sourceCode url:self.bundleURL bundleId:bundleId onComplete:completion];
   }
 
   [self.devSettings setupHMRClientWithBundleURL:self.bundleURL];
@@ -1417,11 +1417,14 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
   }
 }
 
-- (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(dispatch_block_t)onComplete
+- (void)enqueueApplicationScript:(NSData *)script
+                             url:(NSURL *)url
+                             bundleId:(uint32_t)bundleId
+                      onComplete:(dispatch_block_t)onComplete
 {
   RCT_PROFILE_BEGIN_EVENT(RCTProfileTagAlways, @"-[RCTCxxBridge enqueueApplicationScript]", nil);
 
-  [self executeApplicationScript:script url:url async:YES];
+  [self executeApplicationScript:script url:url bundleId:bundleId async:YES];
 
   RCT_PROFILE_END_EVENT(RCTProfileTagAlways, @"");
 
@@ -1432,12 +1435,15 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
   }
 }
 
-- (void)executeApplicationScriptSync:(NSData *)script url:(NSURL *)url
+- (void)executeApplicationScriptSync:(NSData *)script url:(NSURL *)url bundleId:(uint32_t)bundleId
 {
-  [self executeApplicationScript:script url:url async:NO];
+  [self executeApplicationScript:script url:url bundleId:bundleId async:NO];
 }
 
-- (void)executeApplicationScript:(NSData *)script url:(NSURL *)url async:(BOOL)async
+- (void)executeApplicationScript:(NSData *)script
+                             url:(NSURL *)url
+                             bundleId:(uint32_t)bundleId
+                           async:(BOOL)async
 {
   [self _tryAndHandleError:^{
     NSString *sourceUrlStr = deriveSourceURL(url);
@@ -1462,10 +1468,9 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
       std::unique_ptr<const JSBigString> scriptStr = ramBundle->getStartupCode();
       [self->_performanceLogger markStopForTag:RCTPLRAMBundleLoad];
       [self->_performanceLogger setValue:scriptStr->size() forTag:RCTPLRAMStartupCodeSize];
-      if (reactInstance) {
-        auto registry =
-            RAMBundleRegistry::multipleBundlesRegistry(std::move(ramBundle), JSIndexedRAMBundle::buildFactory());
-        reactInstance->loadRAMBundle(std::move(registry), std::move(scriptStr), sourceUrlStr.UTF8String, !async);
+      if (self->_reactInstance) {
+        self->_reactInstance->loadRAMBundle(std::move(ramBundle), std::move(scriptStr),
+                                            sourceUrlStr.UTF8String, bundleId, !async);
       }
     } else if (reactInstance) {
       reactInstance->loadScriptFromString(std::make_unique<NSDataBigString>(script), sourceUrlStr.UTF8String, !async);
@@ -1478,9 +1483,27 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
 - (void)registerSegmentWithId:(NSUInteger)segmentId path:(NSString *)path
 {
-  if (_reactInstance) {
-    _reactInstance->registerBundle(static_cast<uint32_t>(segmentId), path.UTF8String);
-  }
+    __weak RCTCxxBridge *weakSelf = self;
+    NSURL *pathURL = [NSURL URLWithString:path];
+    dispatch_group_t group = dispatch_group_create();
+    
+    dispatch_group_enter(group);
+    [RCTJavaScriptLoader loadBundleAtURL:pathURL onProgress:^(RCTLoadingProgress *progressData) {} onComplete:^(NSError *error, RCTSource *source) {
+    if (error) {
+      [weakSelf handleError:error];
+      return;
+    }
+    
+    NSData *sourceCode = source.data;
+    __strong RCTCxxBridge *strongSelf = weakSelf;
+    if (strongSelf->_reactInstance) {
+      [strongSelf executeApplicationScript:sourceCode url:pathURL bundleId:segmentId async:YES];
+    }
+    dispatch_group_leave(group);
+        
+    }];
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 }
 
 #pragma mark - Payload Processing

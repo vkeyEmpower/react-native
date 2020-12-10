@@ -67,13 +67,13 @@ class RCTObjcExecutor : public JSExecutor {
     setGlobalVariable("__fbBatchedBridgeConfig", std::make_unique<JSBigStdString>(folly::toJson(config)));
   }
 
-  void initializeRuntime() override
-  {
+  void initializeRuntime() {
     // We do nothing here since initialization is done in the constructor
   }
 
-  void loadBundle(std::unique_ptr<const JSBigString> script, std::string sourceURL) override
-  {
+  void loadBundle(
+      std::unique_ptr<const JSBigString> script,
+      std::string sourceURL) override {
     RCTProfileBeginFlowEvent();
     [m_jse executeApplicationScript:[NSData dataWithBytes:script->c_str() length:script->size()]
                           sourceURL:[[NSURL alloc] initWithString:@(sourceURL.c_str())]
@@ -94,8 +94,7 @@ class RCTObjcExecutor : public JSExecutor {
     RCTAssert(NO, @"RAM bundles are not supported in RCTObjcExecutor");
   }
 
-  void registerBundle(uint32_t __unused bundleId, const std::string __unused &bundlePath) override
-  {
+  void registerBundle(uint32_t __unused bundleId, std::unique_ptr<JSModulesUnbundle> __unused) override {
     RCTAssert(NO, @"RAM bundles are not supported in RCTObjcExecutor");
   }
 
