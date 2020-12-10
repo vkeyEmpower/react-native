@@ -256,7 +256,7 @@ class RuntimeDecorator : public Base, private jsi::Instrumentation {
   WeakObject createWeakObject(const Object& o) override {
     return plain_.createWeakObject(o);
   };
-  Value lockWeakObject(const WeakObject& wo) override {
+  Value lockWeakObject(WeakObject& wo) override {
     return plain_.lockWeakObject(wo);
   };
 
@@ -331,12 +331,17 @@ class RuntimeDecorator : public Base, private jsi::Instrumentation {
     return plain().instrumentation().getHeapInfo(includeExpensive);
   }
 
-  void collectGarbage() override {
-    plain().instrumentation().collectGarbage();
+  void collectGarbage(std::string cause) override {
+    plain().instrumentation().collectGarbage(std::move(cause));
   }
 
-  void startTrackingHeapObjectStackTraces() override {
-    plain().instrumentation().startTrackingHeapObjectStackTraces();
+  void startTrackingHeapObjectStackTraces(
+      std::function<void(
+          uint64_t,
+          std::chrono::microseconds,
+          std::vector<HeapStatsUpdate>)> callback) override {
+    plain().instrumentation().startTrackingHeapObjectStackTraces(
+        std::move(callback));
   }
 
   void stopTrackingHeapObjectStackTraces() override {
@@ -633,7 +638,7 @@ class WithRuntimeDecorator : public RuntimeDecorator<Plain, Base> {
     Around around{with_};
     return RD::createWeakObject(o);
   };
-  Value lockWeakObject(const WeakObject& wo) override {
+  Value lockWeakObject(WeakObject& wo) override {
     Around around{with_};
     return RD::lockWeakObject(wo);
   };

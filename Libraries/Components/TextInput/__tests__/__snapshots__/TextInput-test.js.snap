@@ -4,6 +4,7 @@ exports[`TextInput tests should render as expected: should deep render when mock
 <RCTSinglelineTextInputView
   accessible={true}
   allowFontScaling={true}
+  blurOnSubmit={true}
   focusable={true}
   forwardedRef={null}
   mostRecentEventCount={0}
@@ -31,6 +32,7 @@ exports[`TextInput tests should render as expected: should deep render when not 
 <RCTSinglelineTextInputView
   accessible={true}
   allowFontScaling={true}
+  blurOnSubmit={true}
   focusable={true}
   forwardedRef={null}
   mostRecentEventCount={0}
@@ -54,18 +56,6 @@ exports[`TextInput tests should render as expected: should deep render when not 
 />
 `;
 
-exports[`TextInput tests should render as expected: should shallow render as <TextInput /> when mocked 1`] = `
-<ForwardRef(TextInput)
-  allowFontScaling={true}
-  rejectResponderTermination={true}
-  underlineColorAndroid="transparent"
-/>
-`;
+exports[`TextInput tests should render as expected: should shallow render as <TextInput /> when mocked 1`] = `<ForwardRef(TextInput) />`;
 
-exports[`TextInput tests should render as expected: should shallow render as <TextInput /> when not mocked 1`] = `
-<ForwardRef(TextInput)
-  allowFontScaling={true}
-  rejectResponderTermination={true}
-  underlineColorAndroid="transparent"
-/>
-`;
+exports[`TextInput tests should render as expected: should shallow render as <TextInput /> when not mocked 1`] = `<ForwardRef(TextInput) />`;

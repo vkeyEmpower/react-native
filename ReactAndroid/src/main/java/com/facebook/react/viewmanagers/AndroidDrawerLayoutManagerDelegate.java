@@ -15,7 +15,6 @@ import com.facebook.react.bridge.ColorPropConverter;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.BaseViewManagerDelegate;
 import com.facebook.react.uimanager.BaseViewManagerInterface;
-import com.facebook.react.uimanager.LayoutShadowNode;
 
 public class AndroidDrawerLayoutManagerDelegate<T extends View, U extends BaseViewManagerInterface<T> & AndroidDrawerLayoutManagerInterface<T>> extends BaseViewManagerDelegate<T, U> {
   public AndroidDrawerLayoutManagerDelegate(U viewManager) {
@@ -47,13 +46,14 @@ public class AndroidDrawerLayoutManagerDelegate<T extends View, U extends BaseVi
     }
   }
 
-  public void receiveCommand(AndroidDrawerLayoutManagerInterface<T> viewManager, T view, String commandName, ReadableArray args) {
+  @Override
+  public void receiveCommand(T view, String commandName, ReadableArray args) {
     switch (commandName) {
       case "openDrawer":
-        viewManager.openDrawer(view);
+        mViewManager.openDrawer(view);
         break;
       case "closeDrawer":
-        viewManager.closeDrawer(view);
+        mViewManager.closeDrawer(view);
         break;
     }
   }

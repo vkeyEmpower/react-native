@@ -13,6 +13,9 @@ def use_react_native! (options={})
   # Include DevSupport dependency
   production = options[:production] ||= false
 
+  # Include Hermes dependencies
+  hermes_enabled = options[:hermes_enabled] ||= false
+
   # The Pods which should be included in all projects
   pod 'FBLazyVector', :path => "#{prefix}/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "#{prefix}/Libraries/FBReactNativeSpec"
@@ -41,50 +44,58 @@ def use_react_native! (options={})
   pod 'React-jsiexecutor', :path => "#{prefix}/ReactCommon/jsiexecutor"
   pod 'React-jsinspector', :path => "#{prefix}/ReactCommon/jsinspector"
   pod 'React-callinvoker', :path => "#{prefix}/ReactCommon/callinvoker"
+  pod 'React-runtimeexecutor', :path => "#{prefix}/ReactCommon/runtimeexecutor"
+  pod 'React-perflogger', :path => "#{prefix}/ReactCommon/reactperflogger"
   pod 'ReactCommon/turbomodule/core', :path => "#{prefix}/ReactCommon"
   pod 'Yoga', :path => "#{prefix}/ReactCommon/yoga", :modular_headers => true
 
   pod 'DoubleConversion', :podspec => "#{prefix}/third-party-podspecs/DoubleConversion.podspec"
   pod 'glog', :podspec => "#{prefix}/third-party-podspecs/glog.podspec"
-  pod 'Folly', :podspec => "#{prefix}/third-party-podspecs/Folly.podspec"
+  pod 'RCT-Folly', :podspec => "#{prefix}/third-party-podspecs/RCT-Folly.podspec"
 
   if fabric_enabled
     pod 'React-Fabric', :path => "#{prefix}/ReactCommon"
     pod 'React-graphics', :path => "#{prefix}/ReactCommon/fabric/graphics"
     pod 'React-jsi/Fabric', :path => "#{prefix}/ReactCommon/jsi"
     pod 'React-RCTFabric', :path => "#{prefix}/React"
-    pod 'Folly/Fabric', :podspec => "#{prefix}/third-party-podspecs/Folly.podspec"
+    pod 'RCT-Folly/Fabric', :podspec => "#{prefix}/third-party-podspecs/RCT-Folly.podspec"
+  end
+
+  if hermes_enabled
+    pod 'React-hermes', :path => "#{prefix}/ReactCommon/hermes"
+    pod 'hermes-engine'
+    pod 'libevent', :podspec => "#{prefix}/third-party-podspecs/libevent.podspec"
   end
 end
 
-def use_flipper!(versions = {})
-  versions['Flipper'] ||= '~> 0.37.0'
-  versions['DoubleConversion'] ||= '1.1.7'
+def use_flipper!(versions = {}, configurations: ['Debug'])
+  versions['Flipper'] ||= '~> 0.54.0'
+  versions['Flipper-DoubleConversion'] ||= '1.1.7'
   versions['Flipper-Folly'] ||= '~> 2.2'
   versions['Flipper-Glog'] ||= '0.3.6'
   versions['Flipper-PeerTalk'] ||= '~> 0.0.4'
   versions['Flipper-RSocket'] ||= '~> 1.1'
-  pod 'FlipperKit', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitLayoutPlugin', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/SKIOSNetworkPlugin', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitUserDefaultsPlugin', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitReactPlugin', versions['Flipper'], :configuration => 'Debug'
+  pod 'FlipperKit', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FlipperKitLayoutPlugin', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/SKIOSNetworkPlugin', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FlipperKitUserDefaultsPlugin', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FlipperKitReactPlugin', versions['Flipper'], :configurations => configurations
   # List all transitive dependencies for FlipperKit pods
   # to avoid them being linked in Release builds
-  pod 'Flipper', versions['Flipper'], :configuration => 'Debug'
-  pod 'Flipper-DoubleConversion', versions['DoubleConversion'], :configuration => 'Debug'
-  pod 'Flipper-Folly', versions['Flipper-Folly'], :configuration => 'Debug'
-  pod 'Flipper-Glog', versions['Flipper-Glog'], :configuration => 'Debug'
-  pod 'Flipper-PeerTalk', versions['Flipper-PeerTalk'], :configuration => 'Debug'
-  pod 'Flipper-RSocket', versions['Flipper-RSocket'], :configuration => 'Debug'
-  pod 'FlipperKit/Core', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/CppBridge', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FBCxxFollyDynamicConvert', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FBDefines', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FKPortForwarding', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitHighlightOverlay', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitLayoutTextSearchable', versions['Flipper'], :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitNetworkPlugin', versions['Flipper'], :configuration => 'Debug'
+  pod 'Flipper', versions['Flipper'], :configurations => configurations
+  pod 'Flipper-DoubleConversion', versions['Flipper-DoubleConversion'], :configurations => configurations
+  pod 'Flipper-Folly', versions['Flipper-Folly'], :configurations => configurations
+  pod 'Flipper-Glog', versions['Flipper-Glog'], :configurations => configurations
+  pod 'Flipper-PeerTalk', versions['Flipper-PeerTalk'], :configurations => configurations
+  pod 'Flipper-RSocket', versions['Flipper-RSocket'], :configurations => configurations
+  pod 'FlipperKit/Core', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/CppBridge', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FBCxxFollyDynamicConvert', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FBDefines', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FKPortForwarding', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FlipperKitHighlightOverlay', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FlipperKitLayoutTextSearchable', versions['Flipper'], :configurations => configurations
+  pod 'FlipperKit/FlipperKitNetworkPlugin', versions['Flipper'], :configurations => configurations
 end
 
 # Post Install processing for Flipper
@@ -96,31 +107,4 @@ def flipper_post_install(installer)
       end
     end
   end
-  file_name = Dir.glob("*.xcodeproj")[0]
-  app_project = Xcodeproj::Project.open(file_name)
-  app_project.native_targets.each do |target|
-    target.build_configurations.each do |config|
-      cflags = config.build_settings['OTHER_CFLAGS'] || '$(inherited) '
-      unless cflags.include? '-DFB_SONARKIT_ENABLED=1'
-        puts 'Adding -DFB_SONARKIT_ENABLED=1 in OTHER_CFLAGS...'
-        cflags << '-DFB_SONARKIT_ENABLED=1'
-      end
-      config.build_settings['OTHER_CFLAGS'] = cflags
-      if (config.build_settings['OTHER_SWIFT_FLAGS'])
-        unless config.build_settings['OTHER_SWIFT_FLAGS'].include? '-DFB_SONARKIT_ENABLED'
-          puts 'Adding -DFB_SONARKIT_ENABLED ...'
-          swift_flags = config.build_settings['OTHER_SWIFT_FLAGS']
-          if swift_flags.split.last != '-Xcc'
-            config.build_settings['OTHER_SWIFT_FLAGS'] << ' -Xcc'
-          end
-          config.build_settings['OTHER_SWIFT_FLAGS'] << ' -DFB_SONARKIT_ENABLED'
-        end
-      else
-        puts 'OTHER_SWIFT_FLAGS does not exist thus assigning it to `$(inherited) -Xcc -DFB_SONARKIT_ENABLED`'
-        config.build_settings['OTHER_SWIFT_FLAGS'] = '$(inherited) -Xcc -DFB_SONARKIT_ENABLED'
-      end
-      app_project.save
-    end
-  end
-  installer.pods_project.save
 end
